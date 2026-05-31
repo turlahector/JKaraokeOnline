@@ -66,6 +66,54 @@
   margin-top: 0.25rem;
 }
 
+.now-playing-empty {
+  margin-top: 0.8rem;
+  border: 1px solid rgba(56, 189, 248, 0.45);
+  border-radius: 0.85rem;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.9), rgba(12, 26, 46, 0.86));
+  box-shadow: 0 14px 28px rgba(2, 132, 199, 0.2);
+  padding: 1rem 1.05rem;
+}
+
+.now-playing-empty h3 {
+  margin: 0 0 0.45rem;
+  font-size: 1.15rem;
+  line-height: 1.25;
+}
+
+.empty-badge {
+  display: inline-flex;
+  align-items: center;
+  margin: 0 0 0.55rem;
+  padding: 0.22rem 0.52rem;
+  border-radius: 999px;
+  border: 1px solid rgba(34, 211, 238, 0.45);
+  background: rgba(15, 118, 110, 0.25);
+  color: #67e8f9;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.empty-primary {
+  margin: 0 0 0.3rem;
+  color: #e2e8f0;
+  font-size: 1rem;
+  font-weight: 650;
+}
+
+.empty-play-btn {
+  margin: 0.25rem 0 0.45rem;
+  min-width: 180px;
+}
+
+.empty-secondary {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+}
+
 .screen-right-panel {
   display: grid;
   gap: 1rem;
@@ -457,6 +505,19 @@ button.danger:hover {
   padding: 0.55rem 0.6rem;
   background: rgba(2, 6, 23, 0.75);
   backdrop-filter: blur(4px);
+}
+
+.player-card:fullscreen .now-playing-empty,
+.player-card:-webkit-full-screen .now-playing-empty,
+.player-card-mobile-fullscreen .now-playing-empty {
+  position: absolute;
+  left: 50%;
+  top: 54%;
+  transform: translate(-50%, -50%);
+  z-index: 4;
+  width: min(92vw, 640px);
+  text-align: center;
+  padding: 1.15rem 1.2rem;
 }
 
 .player-card-mobile-fullscreen .reservation-strip-section {

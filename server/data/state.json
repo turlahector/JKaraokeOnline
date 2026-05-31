@@ -896,6 +896,131 @@
           "createdAt": "2026-05-31T13:23:36.864Z"
         }
       ]
+    },
+    "2c441631-fb1b-47fc-b1c8-c9e5d101ee83": {
+      "currentSong": null,
+      "queue": [
+        {
+          "id": "29ac8892-332d-4428-9ed7-d4b7ae647d85",
+          "singerName": "Boy Pogi",
+          "singerToken": "bc48b2dc-f83c-4652-b962-298a5c8b4866",
+          "singerSessionId": "9850D225",
+          "song": {
+            "videoId": "Gwy7kTAImWQ",
+            "title": "🎥🌟 Ramdam 🎥🌟 – Série jeunesse québécoise culte 🇨🇦 | 🎥 Épisode 51 complet 🎧",
+            "channel": "Ramdam Série TV 📺",
+            "duration": "2:26:01",
+            "durationSeconds": 8761,
+            "thumbnail": "https://i.ytimg.com/vi/Gwy7kTAImWQ/hq720.jpg?sqp=-oaymwEXCNAFEJQDSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLA7bthNshYG71P1w4H0ZAu4_vW6og",
+            "url": "https://www.youtube.com/watch?v=Gwy7kTAImWQ"
+          },
+          "createdAt": "2026-05-31T14:02:52.881Z"
+        },
+        {
+          "id": "83f78f42-c4ec-4aa7-9c37-792ec1a39296",
+          "singerName": "Boy Pogi",
+          "singerToken": "2fe84dd1-2958-40c9-bbba-e2666a7e86fa",
+          "singerSessionId": "D9B9624A",
+          "song": {
+            "videoId": "mlneiMlAEP4",
+            "title": "Moira Dela Torre - Torete (Official Lyric Video)",
+            "channel": "Sony Music Philippines",
+            "duration": "4:28",
+            "durationSeconds": 268,
+            "thumbnail": "https://i.ytimg.com/vi/mlneiMlAEP4/hq720.jpg?sqp=-oaymwEXCNAFEJQDSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLBC-ozzcnqYCY9LMZAcJr5pDqW9MQ",
+            "url": "https://www.youtube.com/watch?v=mlneiMlAEP4"
+          },
+          "createdAt": "2026-05-31T14:05:03.756Z"
+        },
+        {
+          "id": "97fe050f-0c85-4805-9e61-5f68fe0f3689",
+          "singerName": "Boy Pogi",
+          "singerToken": "2fe84dd1-2958-40c9-bbba-e2666a7e86fa",
+          "singerSessionId": "D9B9624A",
+          "song": {
+            "videoId": "mlneiMlAEP4",
+            "title": "Moira Dela Torre - Torete (Official Lyric Video)",
+            "channel": "Sony Music Philippines",
+            "duration": "4:28",
+            "durationSeconds": 268,
+            "thumbnail": "https://i.ytimg.com/vi/mlneiMlAEP4/hq720.jpg?sqp=-oaymwEXCNAFEJQDSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLBC-ozzcnqYCY9LMZAcJr5pDqW9MQ",
+            "url": "https://www.youtube.com/watch?v=mlneiMlAEP4"
+          },
+          "createdAt": "2026-05-31T14:05:10.093Z"
+        },
+        {
+          "id": "13940eed-40f7-4ef5-ab42-346c30f55319",
+          "singerName": "Boy Pogi",
+          "singerToken": "2fe84dd1-2958-40c9-bbba-e2666a7e86fa",
+          "singerSessionId": "D9B9624A",
+          "song": {
+            "videoId": "mlneiMlAEP4",
+            "title": "Moira Dela Torre - Torete (Official Lyric Video)",
+            "channel": "Sony Music Philippines",
+            "duration": "4:28",
+            "durationSeconds": 268,
+            "thumbnail": "https://i.ytimg.com/vi/mlneiMlAEP4/hq720.jpg?sqp=-oaymwEXCNAFEJQDSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLBC-ozzcnqYCY9LMZAcJr5pDqW9MQ",
+            "url": "https://www.youtube.com/watch?v=mlneiMlAEP4"
+          },
+          "createdAt": "2026-05-31T14:05:10.909Z"
+        },
+        {
+          "id": "5a939e97-1ac1-4c63-bcb5-bc3645f96d3d",
+          "singerName": "Boy Pogi",
+          "singerToken": "2fe84dd1-2958-40c9-bbba-e2666a7e86fa",
+          "singerSessionId": "D9B9624A",
+          "song": {
+            "videoId": "mlneiMlAEP4",
+            "title": "Moira Dela Torre - Torete (Official Lyric Video)",
+            "channel": "Sony Music Philippines",
+            "duration": "4:28",
+            "durationSeconds": 268,
+            "thumbnail": "https://i.ytimg.com/vi/mlneiMlAEP4/hq720.jpg?sqp=-oaymwEXCNAFEJQDSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLBC-ozzcnqYCY9LMZAcJr5pDqW9MQ",
+            "url": "https://www.youtube.com/watch?v=mlneiMlAEP4"
+          },
+          "createdAt": "2026-05-31T14:05:11.509Z"
+        }
+      ]
+    },
+    "a737dad6-82a4-4ed3-bc1e-a6b26a97f21d": {
+      "currentSong": null,
+      "queue": []
+    },
+    "13be11a1-3b05-46b7-bd93-39c86c7b0b3c": {
+      "currentSong": {
+        "id": "b3122d4d-e24d-4008-8fdd-1b6d085316ce",
+        "singerName": "Test Singer",
+        "singerToken": "068ae468-27e4-4a7c-b0ac-58be08516e01",
+        "singerSessionId": "F6A77F88",
+        "song": {
+          "videoId": "leyDvff0UYw",
+          "title": "Torete - Moonstar88 (Lyrics)🎶",
+          "channel": "Vhic Playlist",
+          "duration": "4:38",
+          "durationSeconds": 278,
+          "thumbnail": "https://i.ytimg.com/vi/leyDvff0UYw/hq720.jpg?sqp=-oaymwEXCNAFEJQDSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLB6ye4d-NArCMxpJGeUgHYj4W6r6w",
+          "url": "https://www.youtube.com/watch?v=leyDvff0UYw"
+        },
+        "createdAt": "2026-05-31T14:06:43.333Z"
+      },
+      "queue": [
+        {
+          "id": "5be4cf16-89dd-4913-826d-74fd6db11b8b",
+          "singerName": "Test Singer",
+          "singerToken": "068ae468-27e4-4a7c-b0ac-58be08516e01",
+          "singerSessionId": "F6A77F88",
+          "song": {
+            "videoId": "mlneiMlAEP4",
+            "title": "Moira Dela Torre - Torete (Official Lyric Video)",
+            "channel": "Sony Music Philippines",
+            "duration": "4:28",
+            "durationSeconds": 268,
+            "thumbnail": "https://i.ytimg.com/vi/mlneiMlAEP4/hq720.jpg?sqp=-oaymwEXCNAFEJQDSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLBC-ozzcnqYCY9LMZAcJr5pDqW9MQ",
+            "url": "https://www.youtube.com/watch?v=mlneiMlAEP4"
+          },
+          "createdAt": "2026-05-31T14:06:44.549Z"
+        }
+      ]
     }
   }
 }

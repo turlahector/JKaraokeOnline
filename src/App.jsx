@@ -384,7 +384,24 @@ function ScreenView({
               />
             </>
           ) : (
-            <p className="muted">No active song. Tap "Start Next Song".</p>
+            <section className="now-playing-empty" role="status" aria-live="polite">
+              <p className="empty-badge">Waiting for playback</p>
+              <h3>No song is currently playing</h3>
+              <p className="empty-primary">Tap <strong>Next</strong> to start the next reserved song.</p>
+              <button
+                type="button"
+                className="empty-play-btn"
+                onClick={onStartNext}
+                disabled={isLoading || queue.length === 0}
+              >
+                {isLoading ? 'Starting...' : 'Play Next Song'}
+              </button>
+              <p className="empty-secondary">
+                {queue.length > 0
+                  ? `${queue.length} reservation${queue.length > 1 ? 's are' : ' is'} ready in queue.`
+                  : 'Queue is empty. Ask singers to reserve songs first.'}
+              </p>
+            </section>
           )}
         </section>
 
