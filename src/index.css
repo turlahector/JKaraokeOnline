@@ -9,6 +9,11 @@
   --border: #1f2937;
   --text: #f9fafb;
   --text-muted: #9ca3af;
+  --accent: #22d3ee;
+  --accent-strong: #06b6d4;
+  --danger: #dc2626;
+  --shadow-lg: 0 18px 35px rgba(2, 6, 23, 0.38);
+  --shadow-sm: 0 4px 14px rgba(2, 6, 23, 0.24);
 }
 
 html,
@@ -20,17 +25,33 @@ body,
 
 body {
   font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-  background: var(--bg);
+  background:
+    radial-gradient(circle at top left, rgba(34, 211, 238, 0.08), transparent 42%),
+    radial-gradient(circle at top right, rgba(59, 130, 246, 0.09), transparent 46%),
+    var(--bg);
   color: var(--text);
+  line-height: 1.45;
+  letter-spacing: 0.01em;
 }
 
 h1 {
   margin: 0 0 0.4rem;
-  font-size: 1.7rem;
+  font-size: clamp(1.35rem, 2vw, 1.8rem);
   color: var(--text);
+  line-height: 1.15;
 }
 
 h2 {
   margin: 0 0 0.75rem;
   color: var(--text);
+  font-size: clamp(1.05rem, 1.2vw, 1.25rem);
+  line-height: 1.2;
+}
+
+h3 {
+  line-height: 1.2;
+}
+
+p {
+  line-height: 1.45;
 }

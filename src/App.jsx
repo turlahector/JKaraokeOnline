@@ -242,20 +242,114 @@ function ScreenView({
   isLoading,
   error,
 }) {
+  const nowPlayingRef = useRef(null)
+  const [isNowPlayingFullscreen, setIsNowPlayingFullscreen] = useState(false)
+
+  useEffect(() => {
+    const syncFullscreenState = () => {
+      const fullscreenElement =
+        document.fullscreenElement ||
+        document.webkitFullscreenElement ||
+        document.mozFullScreenElement ||
+        document.msFullscreenElement
+
+      setIsNowPlayingFullscreen(fullscreenElement === nowPlayingRef.current)
+    }
+
+    document.addEventListener('fullscreenchange', syncFullscreenState)
+    document.addEventListener('webkitfullscreenchange', syncFullscreenState)
+    syncFullscreenState()
+
+    return () => {
+      document.removeEventListener('fullscreenchange', syncFullscreenState)
+      document.removeEventListener('webkitfullscreenchange', syncFullscreenState)
+    }
+  }, [])
+
+  const toggleNowPlayingFullscreen = async () => {
+    const target = nowPlayingRef.current
+    if (!target) return
+
+    try {
+      const fullscreenElement =
+        document.fullscreenElement ||
+        document.webkitFullscreenElement ||
+        document.mozFullScreenElement ||
+        document.msFullscreenElement
+
+      if (fullscreenElement === target) {
+        if (document.exitFullscreen) {
+          await document.exitFullscreen()
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen()
+        }
+        return
+      }
+
+      if (target.requestFullscreen) {
+        await target.requestFullscreen()
+      } else if (target.webkitRequestFullscreen) {
+        target.webkitRequestFullscreen()
+      }
+    } catch {
+      // Ignore fullscreen errors; some browsers restrict this API.
+    }
+  }
+
   return (
     <main className="layout screen">
-      <header className="card">
+      <header className="card host-header-card">
         <h1>JKaraoke - Host Control Panel</h1>
         <p>Open this screen on iPad/TV and control the queue here.</p>
       </header>
 
       <div className="screen-grid">
-        <section className="card player-card screen-left-panel">
-          <h2>Now Playing</h2>
+        <section ref={nowPlayingRef} className="card player-card screen-left-panel">
+          <div className="now-playing-header">
+            <h2>Now Playing</h2>
+            <div className="now-playing-tools">
+              <button type="button" className="secondary fullscreen-btn" onClick={toggleNowPlayingFullscreen}>
+                {isNowPlayingFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
+              </button>
+            </div>
+          </div>
+          <section className="reservation-strip-section">
+            <div className="reservation-strip-header">
+              <h3 className="queue-title">Reserved Songs</h3>
+              {isNowPlayingFullscreen && singerShareUrl ? (
+                <div className="fullscreen-qr-wrapper" aria-label="Singer QR code">
+                  <QRCodeSVG value={singerShareUrl} size={92} bgColor="#ffffff" fgColor="#0f172a" includeMargin />
+                </div>
+              ) : null}
+            </div>
+            {queue.length === 0 ? (
+              <p className="muted">No reserved songs yet.</p>
+            ) : (
+              <>
+                <div className="reservation-strip" role="list" aria-label="Reserved songs queue">
+                  {queue.map((reservation, index) => (
+                    <article key={reservation.id} className="reservation-card" role="listitem">
+                      <p className="reservation-order">#{index + 1}</p>
+                      <p className="reservation-song" title={reservation.song.title}>
+                        {reservation.song.title}
+                      </p>
+                      <p className="reservation-requester" title={reservation.singerName}>
+                        Requested by: {reservation.singerName}
+                      </p>
+                    </article>
+                  ))}
+                </div>
+                <p className="muted strip-hint">Scroll right to view more reserved songs.</p>
+              </>
+            )}
+          </section>
+
           {currentSong ? (
             <>
-              <p className="song-title">{currentSong.song.title}</p>
-              <p className="muted">Singer: {currentSong.singerName}</p>
+              <div className="now-playing-meta">
+                <p className="song-title">{currentSong.song.title}</p>
+                <p className="muted">Singer: {currentSong.singerName}</p>
+              </div>
               <YouTubePlayer
                 videoId={currentSong.song.videoId}
                 title={currentSong.song.title}
