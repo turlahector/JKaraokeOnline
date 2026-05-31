@@ -3,6 +3,10 @@
     {
       "source": "/api/:path*",
       "destination": "https://jkaraokeonline.onrender.com/api/:path*"
+    },
+    {
+      "source": "/:path*",
+      "destination": "/index.html"
     }
   ]
 }
