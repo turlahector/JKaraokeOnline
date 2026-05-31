@@ -244,6 +244,8 @@ function ScreenView({
 }) {
   const nowPlayingRef = useRef(null)
   const [isNowPlayingFullscreen, setIsNowPlayingFullscreen] = useState(false)
+  const [isFallbackFullscreen, setIsFallbackFullscreen] = useState(false)
+  const isPanelFullscreen = isNowPlayingFullscreen || isFallbackFullscreen
 
   useEffect(() => {
     const syncFullscreenState = () => {
@@ -266,9 +268,28 @@ function ScreenView({
     }
   }, [])
 
+  useEffect(() => {
+    if (!isFallbackFullscreen) {
+      document.body.style.overflow = ''
+      return
+    }
+
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+
+    return () => {
+      document.body.style.overflow = previousOverflow
+    }
+  }, [isFallbackFullscreen])
+
   const toggleNowPlayingFullscreen = async () => {
     const target = nowPlayingRef.current
     if (!target) return
+
+    if (isFallbackFullscreen) {
+      setIsFallbackFullscreen(false)
+      return
+    }
 
     try {
       const fullscreenElement =
@@ -290,33 +311,39 @@ function ScreenView({
         await target.requestFullscreen()
       } else if (target.webkitRequestFullscreen) {
         target.webkitRequestFullscreen()
+      } else {
+        setIsFallbackFullscreen(true)
       }
     } catch {
-      // Ignore fullscreen errors; some browsers restrict this API.
+      // Mobile browsers can block fullscreen on arbitrary elements.
+      setIsFallbackFullscreen(true)
     }
   }
 
   return (
-    <main className="layout screen">
+    <main className={`layout screen ${isFallbackFullscreen ? 'mobile-fullscreen-root' : ''}`}>
       <header className="card host-header-card">
         <h1>JKaraoke - Host Control Panel</h1>
         <p>Open this screen on iPad/TV and control the queue here.</p>
       </header>
 
       <div className="screen-grid">
-        <section ref={nowPlayingRef} className="card player-card screen-left-panel">
+        <section
+          ref={nowPlayingRef}
+          className={`card player-card screen-left-panel ${isFallbackFullscreen ? 'player-card-mobile-fullscreen' : ''}`}
+        >
           <div className="now-playing-header">
             <h2>Now Playing</h2>
             <div className="now-playing-tools">
               <button type="button" className="secondary fullscreen-btn" onClick={toggleNowPlayingFullscreen}>
-                {isNowPlayingFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
+                {isPanelFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
               </button>
             </div>
           </div>
           <section className="reservation-strip-section">
             <div className="reservation-strip-header">
               <h3 className="queue-title">Reserved Songs</h3>
-              {isNowPlayingFullscreen && singerShareUrl ? (
+              {isPanelFullscreen && singerShareUrl ? (
                 <div className="fullscreen-qr-wrapper" aria-label="Singer QR code">
                   <QRCodeSVG value={singerShareUrl} size={92} bgColor="#ffffff" fgColor="#0f172a" includeMargin />
                 </div>
