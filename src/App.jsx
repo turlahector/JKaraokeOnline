@@ -81,6 +81,7 @@ function YouTubePlayer({ videoId, title, onEnded, onPlaybackBlocked }) {
             autoplay: 1,
             rel: 0,
             playsinline: 1,
+            fs: 0,
           },
           events: {
             onReady: (event) => {

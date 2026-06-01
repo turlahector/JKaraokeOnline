@@ -1125,38 +1125,22 @@
     },
     "9b1374d5-8d9c-44c4-87b7-6f93018a368e": {
       "currentSong": {
-        "id": "932fed4b-07ea-4dab-a393-9e76f2ffb095",
+        "id": "0eff3b82-07e9-49d0-b359-577c65f90d14",
         "singerName": "Singer",
         "singerToken": "0cc01d70-58d1-47b0-8cdd-148c2347861d",
         "singerSessionId": "AF03F212",
         "song": {
-          "videoId": "GHII68L153E",
-          "title": "Muli (Karaoke Version) – Bugoy Drilon | OPM Karaoke with Lyrics",
-          "channel": "Karaoke All-Stars",
-          "duration": "4:05",
-          "durationSeconds": 245,
-          "thumbnail": "https://i.ytimg.com/vi/GHII68L153E/hq720.jpg?sqp=-oaymwEXCNAFEJQDSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLDPTuyV3IsoQFDSD5SwuJsGhvouPw",
-          "url": "https://www.youtube.com/watch?v=GHII68L153E"
+          "videoId": "Kbh--yAhjAE",
+          "title": "YOU - Basil Valdez (HD Karaoke)",
+          "channel": "Atomic Karaoke... ",
+          "duration": "4:13",
+          "durationSeconds": 253,
+          "thumbnail": "https://i.ytimg.com/vi/Kbh--yAhjAE/hq720.jpg?sqp=-oaymwEXCNAFEJQDSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLAApKxw9kulBxATkI1D6GwOm4bF3A",
+          "url": "https://www.youtube.com/watch?v=Kbh--yAhjAE"
         },
-        "createdAt": "2026-06-01T08:24:01.653Z"
+        "createdAt": "2026-06-01T08:24:02.254Z"
       },
       "queue": [
-        {
-          "id": "0eff3b82-07e9-49d0-b359-577c65f90d14",
-          "singerName": "Singer",
-          "singerToken": "0cc01d70-58d1-47b0-8cdd-148c2347861d",
-          "singerSessionId": "AF03F212",
-          "song": {
-            "videoId": "Kbh--yAhjAE",
-            "title": "YOU - Basil Valdez (HD Karaoke)",
-            "channel": "Atomic Karaoke... ",
-            "duration": "4:13",
-            "durationSeconds": 253,
-            "thumbnail": "https://i.ytimg.com/vi/Kbh--yAhjAE/hq720.jpg?sqp=-oaymwEXCNAFEJQDSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLAApKxw9kulBxATkI1D6GwOm4bF3A",
-            "url": "https://www.youtube.com/watch?v=Kbh--yAhjAE"
-          },
-          "createdAt": "2026-06-01T08:24:02.254Z"
-        },
         {
           "id": "ab9f2aae-de31-425d-8dbb-128d8d3e4e76",
           "singerName": "Singer",
