@@ -4,6 +4,9 @@ import './App.css'
 
 const POLL_INTERVAL_MS = 3000
 const YOUTUBE_IFRAME_API_URL = 'https://www.youtube.com/iframe_api'
+const LAST_SINGER_ACCESS_TOKEN_KEY = 'videoke_last_singer_access_token'
+const REUSE_SINGER_URL_ON_LOGIN_KEY = 'videoke_reuse_singer_url_on_login'
+const SINGER_SESSION_ACCESS_TOKEN_KEY = 'videoke_singer_access_token'
 let youtubeApiPromise
 
 function loadYouTubeApi() {
@@ -104,8 +107,11 @@ function PhoneView({
   singerSessionId,
   singerAccessTokenFromUrl,
   singerDraft,
+  singerNameInputRef,
+  singerSessionNeedsRefresh,
   onSingerDraftChange,
   onSaveSinger,
+  onRefreshSingerSession,
   searchTerm,
   onSearchTermChange,
   onSearchSubmit,
@@ -131,8 +137,17 @@ function PhoneView({
           {!singerAccessTokenFromUrl ? (
             <p className="error">Missing singer access token. Please use the Singer URL from the host screen.</p>
           ) : null}
+          {singerSessionNeedsRefresh && singerAccessTokenFromUrl ? (
+            <div className="session-refresh-panel">
+              <p className="muted">Your singer session needs to be refreshed for this updated URL token.</p>
+              <button type="button" className="secondary session-refresh-btn" onClick={onRefreshSingerSession}>
+                Refresh My Session
+              </button>
+            </div>
+          ) : null}
           <form className="row" onSubmit={onSaveSinger}>
             <input
+              ref={singerNameInputRef}
               value={singerDraft}
               onChange={(event) => onSingerDraftChange(event.target.value)}
               placeholder="Your name"
@@ -505,18 +520,35 @@ function ScreenView({
 function ScreenLoginView({
   usernameInput,
   passwordInput,
+  reuseSingerUrlOnLogin,
   onUsernameInputChange,
   onPasswordInputChange,
+  onReuseSingerUrlOnLoginChange,
   onLogin,
   loginError,
 }) {
   return (
-    <main className="layout screen">
-      <header className="card">
-        <h1>Host Login</h1>
-        <p>Sign in to manage queue and playback controls.</p>
-      </header>
-      <section className="card">
+    <main className="layout screen login-screen">
+      <section className="card login-shell">
+        <header className="login-shell-header">
+          <p className="login-branding" aria-label="JKaraoke brand">
+            <span className="brand-dot" aria-hidden="true" />
+            JKaraoke
+          </p>
+          <h1>Host Login</h1>
+          <p>Sign in to manage queue and playback controls.</p>
+        </header>
+        <section className="login-app-info">
+          <p className="login-app-summary">
+            JKaraoke lets singers join from their phones, reserve YouTube songs, and queue them live on your host
+            screen.
+          </p>
+          <ul className="login-feature-list">
+            <li>Share one singer URL/QR with your guests.</li>
+            <li>Control queue order and start the next song instantly.</li>
+            <li>Use fullscreen mode for TV-style playback.</li>
+          </ul>
+        </section>
         <form className="row login-form" onSubmit={onLogin}>
           <input
             value={usernameInput}
@@ -533,6 +565,17 @@ function ScreenLoginView({
             autoComplete="current-password"
             required
           />
+          <label className="login-option">
+            <input
+              type="checkbox"
+              checked={reuseSingerUrlOnLogin}
+              onChange={(event) => onReuseSingerUrlOnLoginChange(event.target.checked)}
+            />
+            <span className="login-option-label">
+              Reuse previous singer URL token
+              <small>Keeps the singer link unchanged after login.</small>
+            </span>
+          </label>
           <button type="submit">Login</button>
         </form>
         {loginError ? <p className="error">{loginError}</p> : null}
@@ -551,12 +594,27 @@ function App() {
     return pathname
   })
 
+  const initialSingerAccessTokenFromUrl = new URLSearchParams(window.location.search).get('token') || ''
+  const initialStoredSingerAccessToken = sessionStorage.getItem(SINGER_SESSION_ACCESS_TOKEN_KEY) || ''
+  const shouldResetSingerSessionOnLoad = Boolean(
+    initialSingerAccessTokenFromUrl &&
+      initialStoredSingerAccessToken &&
+      initialSingerAccessTokenFromUrl !== initialStoredSingerAccessToken,
+  )
+
+  if (shouldResetSingerSessionOnLoad) {
+    sessionStorage.removeItem('videoke_singer_name')
+    sessionStorage.removeItem('videoke_singer_token')
+    sessionStorage.removeItem('videoke_singer_session_id')
+    sessionStorage.removeItem(SINGER_SESSION_ACCESS_TOKEN_KEY)
+  }
+
   const [singerName, setSingerName] = useState(() => sessionStorage.getItem('videoke_singer_name') || '')
   const [singerToken, setSingerToken] = useState(() => sessionStorage.getItem('videoke_singer_token') || '')
   const [singerSessionId, setSingerSessionId] = useState(
     () => sessionStorage.getItem('videoke_singer_session_id') || '',
   )
-  const [singerAccessTokenFromUrl] = useState(() => new URLSearchParams(window.location.search).get('token') || '')
+  const [singerAccessTokenFromUrl] = useState(() => initialSingerAccessTokenFromUrl)
   const [singerDraft, setSingerDraft] = useState(() => sessionStorage.getItem('videoke_singer_name') || '')
   const [searchTerm, setSearchTerm] = useState('')
   const [searchResults, setSearchResults] = useState([])
@@ -565,7 +623,11 @@ function App() {
   const [isSearching, setIsSearching] = useState(false)
   const [isReserving, setIsReserving] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState('')
+  const [error, setError] = useState(() =>
+    shouldResetSingerSessionOnLoad
+      ? 'Singer URL was updated. Please confirm your singer name again to refresh your session.'
+      : '',
+  )
   const [toastMessage, setToastMessage] = useState('')
   const [hostToken, setHostToken] = useState(() => sessionStorage.getItem('videoke_host_token') || '')
   const [isHostAuthenticated, setIsHostAuthenticated] = useState(false)
@@ -575,6 +637,12 @@ function App() {
   const [loginError, setLoginError] = useState('')
   const [singerAccessToken, setSingerAccessToken] = useState('')
   const [singerLinkMessage, setSingerLinkMessage] = useState('')
+  const [reuseSingerUrlOnLogin, setReuseSingerUrlOnLogin] = useState(() => {
+    const saved = localStorage.getItem(REUSE_SINGER_URL_ON_LOGIN_KEY)
+    return saved === null ? true : saved === 'true'
+  })
+  const [singerSessionNeedsRefresh, setSingerSessionNeedsRefresh] = useState(shouldResetSingerSessionOnLoad)
+  const singerNameInputRef = useRef(null)
 
   const isScreenView = useMemo(() => currentPath === '/host' || currentPath === '/screen', [currentPath])
   const singerShareUrl = singerAccessToken
@@ -635,6 +703,15 @@ function App() {
   }, [toastMessage])
 
   useEffect(() => {
+    localStorage.setItem(REUSE_SINGER_URL_ON_LOGIN_KEY, String(reuseSingerUrlOnLogin))
+  }, [reuseSingerUrlOnLogin])
+
+  useEffect(() => {
+    if (!singerAccessToken) return
+    localStorage.setItem(LAST_SINGER_ACCESS_TOKEN_KEY, singerAccessToken)
+  }, [singerAccessToken])
+
+  useEffect(() => {
     if (!isScreenView) return
 
     if (!hostToken) {
@@ -673,10 +750,24 @@ function App() {
     sessionStorage.removeItem('videoke_singer_name')
     sessionStorage.removeItem('videoke_singer_token')
     sessionStorage.removeItem('videoke_singer_session_id')
+    sessionStorage.removeItem(SINGER_SESSION_ACCESS_TOKEN_KEY)
     setSingerName('')
     setSingerToken('')
     setSingerSessionId('')
   }
+
+  const handleSingerTokenChanged = () => {
+    clearSingerSession()
+    setSearchResults([])
+    setSingerSessionNeedsRefresh(true)
+    setError('Singer URL was updated. Please confirm your singer name again to refresh your session.')
+  }
+
+  useEffect(() => {
+    if (isScreenView || !singerSessionNeedsRefresh) return
+    singerNameInputRef.current?.focus()
+    singerNameInputRef.current?.select()
+  }, [isScreenView, singerSessionNeedsRefresh, singerAccessTokenFromUrl])
 
   const handleSaveSinger = async (event) => {
     event.preventDefault()
@@ -702,12 +793,22 @@ function App() {
       sessionStorage.setItem('videoke_singer_name', data.singerName)
       sessionStorage.setItem('videoke_singer_token', data.singerToken)
       sessionStorage.setItem('videoke_singer_session_id', data.singerSessionId)
+      sessionStorage.setItem(SINGER_SESSION_ACCESS_TOKEN_KEY, singerAccessTokenFromUrl)
       setSingerName(data.singerName)
       setSingerToken(data.singerToken)
       setSingerSessionId(data.singerSessionId)
+      setSingerSessionNeedsRefresh(false)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to start singer session.')
     }
+  }
+
+  const handleRefreshSingerSession = () => {
+    clearSingerSession()
+    setSingerSessionNeedsRefresh(true)
+    setError('Please confirm your singer name again to refresh your session.')
+    singerNameInputRef.current?.focus()
+    singerNameInputRef.current?.select()
   }
 
   const handleSearch = async (event) => {
@@ -756,8 +857,11 @@ function App() {
       const data = await response.json()
 
       if (!response.ok) {
-        if (response.status === 401) {
-          clearSingerSession()
+        if (
+          response.status === 401 ||
+          (response.status === 403 && String(data.error || '').toLowerCase().includes('url token'))
+        ) {
+          handleSingerTokenChanged()
         }
         throw new Error(data.error || 'Reservation failed.')
       }
@@ -780,8 +884,11 @@ function App() {
       })
       if (!response.ok && response.status !== 204) {
         const data = await response.json()
-        if (response.status === 401) {
-          clearSingerSession()
+        if (
+          response.status === 401 ||
+          (response.status === 403 && String(data.error || '').toLowerCase().includes('url token'))
+        ) {
+          handleSingerTokenChanged()
         }
         throw new Error(data.error || 'Failed to remove reservation.')
       }
@@ -943,12 +1050,15 @@ function App() {
     setLoginError('')
 
     try {
+      const previousSingerAccessToken = localStorage.getItem(LAST_SINGER_ACCESS_TOKEN_KEY) || ''
       const response = await fetch('/api/host/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           username: usernameInput,
           password: passwordInput,
+          reuseSingerAccessToken: reuseSingerUrlOnLogin,
+          singerAccessToken: reuseSingerUrlOnLogin ? previousSingerAccessToken : '',
         }),
       })
       const data = await response.json()
@@ -962,7 +1072,11 @@ function App() {
       setUsernameInput('')
       setPasswordInput('')
       setSingerLinkMessage('')
-      await fetchSingerAccessToken(data.token)
+      if (data.singerAccessToken) {
+        setSingerAccessToken(data.singerAccessToken)
+      } else {
+        await fetchSingerAccessToken(data.token)
+      }
       return
     } catch (err) {
       setLoginError(err instanceof Error ? err.message : 'Invalid username or password.')
@@ -1031,8 +1145,10 @@ function App() {
           <ScreenLoginView
             usernameInput={usernameInput}
             passwordInput={passwordInput}
+            reuseSingerUrlOnLogin={reuseSingerUrlOnLogin}
             onUsernameInputChange={setUsernameInput}
             onPasswordInputChange={setPasswordInput}
+            onReuseSingerUrlOnLoginChange={setReuseSingerUrlOnLogin}
             onLogin={handleHostLogin}
             loginError={loginError}
           />
@@ -1044,8 +1160,11 @@ function App() {
           singerSessionId={singerSessionId}
           singerAccessTokenFromUrl={singerAccessTokenFromUrl}
           singerDraft={singerDraft}
+          singerNameInputRef={singerNameInputRef}
+          singerSessionNeedsRefresh={singerSessionNeedsRefresh}
           onSingerDraftChange={setSingerDraft}
           onSaveSinger={handleSaveSinger}
+          onRefreshSingerSession={handleRefreshSingerSession}
           searchTerm={searchTerm}
           onSearchTermChange={setSearchTerm}
           onSearchSubmit={handleSearch}

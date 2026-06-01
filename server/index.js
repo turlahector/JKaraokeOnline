@@ -93,6 +93,18 @@ const parseDurationToSeconds = (durationText) => {
   return parts.reduce((total, part) => total * 60 + part, 0)
 }
 
+const buildKaraokeSearchQuery = (rawQuery) => {
+  const trimmed = String(rawQuery || '').trim()
+  if (!trimmed) return ''
+
+  const normalized = trimmed.toLowerCase()
+  if (normalized.includes('karaoke')) {
+    return trimmed
+  }
+
+  return `${trimmed} karaoke`
+}
+
 const isValidHostToken = (token) => Boolean(token && hostTokens.has(token))
 const isValidSingerToken = (token) => Boolean(token && singerSessions.has(token))
 
@@ -115,13 +127,18 @@ app.get('/api/health', (_req, res) => {
 app.post('/api/host/login', (req, res) => {
   const username = String(req.body?.username || '').trim()
   const password = String(req.body?.password || '')
+  const requestedSingerAccessToken = String(req.body?.singerAccessToken || '').trim()
+  const reuseSingerAccessToken = req.body?.reuseSingerAccessToken !== false
 
   if (username !== HOST_USERNAME || password !== HOST_PASSWORD) {
     return res.status(401).json({ error: 'Invalid username or password.' })
   }
 
   const token = crypto.randomUUID()
-  const singerAccessToken = crypto.randomUUID()
+  const singerAccessToken =
+    reuseSingerAccessToken && requestedSingerAccessToken && state.rooms[requestedSingerAccessToken]
+      ? requestedSingerAccessToken
+      : crypto.randomUUID()
   hostTokens.add(token)
   hostSessions.set(token, singerAccessToken)
   getRoomByToken(singerAccessToken)
@@ -215,7 +232,8 @@ app.get('/api/search', async (req, res) => {
   }
 
   try {
-    const results = await ytsr(q, { limit: 20 })
+    const karaokeQuery = buildKaraokeSearchQuery(q)
+    const results = await ytsr(karaokeQuery, { limit: 20 })
     const videos = results.items
       .filter((item) => item.type === 'video')
       .slice(0, 10)

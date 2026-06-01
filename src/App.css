@@ -311,6 +311,124 @@
   align-items: stretch;
 }
 
+.login-screen {
+  min-height: calc(100vh - 2rem);
+  display: grid;
+  place-items: center;
+}
+
+.login-shell {
+  width: min(720px, 100%);
+  margin: 0;
+}
+
+.login-shell-header {
+  margin-bottom: 0.8rem;
+}
+
+.login-branding {
+  margin: 0 0 0.4rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.84rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #67e8f9;
+}
+
+.brand-dot {
+  width: 0.56rem;
+  height: 0.56rem;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #22d3ee, #06b6d4);
+  box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.18);
+}
+
+.login-shell-header h1 {
+  margin: 0 0 0.25rem;
+}
+
+.login-shell-header p {
+  margin: 0;
+}
+
+.login-app-info {
+  margin-bottom: 0.95rem;
+  border: 1px solid rgba(51, 65, 85, 0.7);
+  border-radius: 0.72rem;
+  background: rgba(15, 23, 42, 0.45);
+  padding: 0.75rem 0.8rem;
+}
+
+.login-app-summary {
+  margin: 0 0 0.5rem;
+  color: #e2e8f0;
+  font-size: 0.94rem;
+}
+
+.login-feature-list {
+  margin: 0;
+  padding-left: 1rem;
+  color: var(--text-muted);
+  display: grid;
+  gap: 0.2rem;
+  font-size: 0.86rem;
+}
+
+.login-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  border: 1px solid rgba(51, 65, 85, 0.75);
+  border-radius: 0.62rem;
+  background: rgba(15, 23, 42, 0.5);
+  padding: 0.6rem 0.65rem;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+
+.login-option input[type='checkbox'] {
+  width: 1rem;
+  height: 1rem;
+  margin-top: 0.15rem;
+  flex: 0 0 auto;
+  padding: 0;
+  border-radius: 0.2rem;
+  border: 1px solid #475569;
+  background: #0f172a;
+  accent-color: var(--accent);
+}
+
+.login-option-label {
+  display: grid;
+  gap: 0.12rem;
+  color: #e2e8f0;
+  line-height: 1.35;
+}
+
+.login-option-label small {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.session-refresh-panel {
+  margin: 0.65rem 0 0.55rem;
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  border-radius: 0.62rem;
+  background: rgba(12, 33, 54, 0.55);
+  padding: 0.55rem 0.65rem;
+}
+
+.session-refresh-panel .muted {
+  font-size: 0.85rem;
+}
+
+.session-refresh-btn {
+  margin-top: 0.45rem;
+}
+
 input {
   flex: 1;
   min-width: 0;

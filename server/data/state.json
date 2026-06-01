@@ -1021,6 +1021,195 @@
           "createdAt": "2026-05-31T14:06:44.549Z"
         }
       ]
+    },
+    "afa84584-32f7-4530-8211-9285dd8d6d67": {
+      "currentSong": null,
+      "queue": [
+        {
+          "id": "977ea9f0-5eec-42c1-a45b-a15d13b2c0c5",
+          "singerName": "Ellis",
+          "singerToken": "1444b32f-3afa-4d5b-b47f-ecd43ff160ac",
+          "singerSessionId": "7FFDE3B3",
+          "song": {
+            "videoId": "8sejFUfH_eE",
+            "title": "THROUGH THE YEARS - Kenny Rogers (HD Karaoke)",
+            "channel": "Atomic Karaoke... ",
+            "duration": "4:25",
+            "durationSeconds": 265,
+            "thumbnail": "https://i.ytimg.com/vi/8sejFUfH_eE/hq720.jpg?sqp=-oaymwEXCNAFEJQDSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLD5ptgi8FEOyXgyzgmPIRMxq4SjDA",
+            "url": "https://www.youtube.com/watch?v=8sejFUfH_eE"
+          },
+          "createdAt": "2026-06-01T01:13:43.758Z"
+        },
+        {
+          "id": "3bbe5dc1-a3b2-46b8-8bfa-a9b00027eaa5",
+          "singerName": "Ellis",
+          "singerToken": "1444b32f-3afa-4d5b-b47f-ecd43ff160ac",
+          "singerSessionId": "7FFDE3B3",
+          "song": {
+            "videoId": "1Ed5k99DNoI",
+            "title": "Through The Years - Kenny Rogers (Acoustic karaoke)",
+            "channel": "Acoustic Lounge",
+            "duration": "4:42",
+            "durationSeconds": 282,
+            "thumbnail": "https://i.ytimg.com/vi/1Ed5k99DNoI/hq720.jpg?sqp=-oaymwEXCNAFEJQDSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLB9CiN2FL04TxjCUA2rgMXBd4ZwhA",
+            "url": "https://www.youtube.com/watch?v=1Ed5k99DNoI"
+          },
+          "createdAt": "2026-06-01T01:13:44.790Z"
+        },
+        {
+          "id": "3b4f9484-8b1b-4a4a-a37c-938d011e83a9",
+          "singerName": "Ellis",
+          "singerToken": "1444b32f-3afa-4d5b-b47f-ecd43ff160ac",
+          "singerSessionId": "7FFDE3B3",
+          "song": {
+            "videoId": "5nQtMqbvVqE",
+            "title": "Kenny Rogers - Through The Years ( Karaoke )",
+            "channel": "KaraokeyTV",
+            "duration": "4:46",
+            "durationSeconds": 286,
+            "thumbnail": "https://i.ytimg.com/vi/5nQtMqbvVqE/hq720.jpg?sqp=-oaymwEXCNAFEJQDSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLDks5uEwdPB3n9Wa6y5SoB6uuwR9w",
+            "url": "https://www.youtube.com/watch?v=5nQtMqbvVqE"
+          },
+          "createdAt": "2026-06-01T01:13:45.637Z"
+        },
+        {
+          "id": "8703ec9a-bee4-4152-80e5-e858b2f7c4cd",
+          "singerName": "Ellis",
+          "singerToken": "1444b32f-3afa-4d5b-b47f-ecd43ff160ac",
+          "singerSessionId": "7FFDE3B3",
+          "song": {
+            "videoId": "306fj13ywKE",
+            "title": "ISLANDS IN THE STREAM - Kenny Rogers & Dolly Parton (HD Karaoke)",
+            "channel": "Atomic Karaoke... ",
+            "duration": "4:26",
+            "durationSeconds": 266,
+            "thumbnail": "https://i.ytimg.com/vi/306fj13ywKE/hq720.jpg?sqp=-oaymwEXCNAFEJQDSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLBpw323-r8F0ZNCzmXncqPjBsZurw",
+            "url": "https://www.youtube.com/watch?v=306fj13ywKE"
+          },
+          "createdAt": "2026-06-01T01:14:04.873Z"
+        },
+        {
+          "id": "bfbfc9ce-e91e-4ef8-a37d-0e54224ec371",
+          "singerName": "Ellis",
+          "singerToken": "1444b32f-3afa-4d5b-b47f-ecd43ff160ac",
+          "singerSessionId": "7FFDE3B3",
+          "song": {
+            "videoId": "RBgimRYxorE",
+            "title": "Bon Jovi - Always (Karaoke Version)",
+            "channel": "Sing King",
+            "duration": "6:15",
+            "durationSeconds": 375,
+            "thumbnail": "https://i.ytimg.com/vi/RBgimRYxorE/hq720.jpg?sqp=-oaymwEXCNAFEJQDSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLBzWv0E8v2VnhPMXLMhFPyYuYJWYg",
+            "url": "https://www.youtube.com/watch?v=RBgimRYxorE"
+          },
+          "createdAt": "2026-06-01T01:14:31.260Z"
+        },
+        {
+          "id": "83b0046b-e567-4adc-be2d-e7b2cd9c8682",
+          "singerName": "Ellis",
+          "singerToken": "1444b32f-3afa-4d5b-b47f-ecd43ff160ac",
+          "singerSessionId": "7FFDE3B3",
+          "song": {
+            "videoId": "fBGaQoyEz1o",
+            "title": "Bon Jovi - Bed Of Roses (Karaoke Version)",
+            "channel": "Sing King",
+            "duration": "6:57",
+            "durationSeconds": 417,
+            "thumbnail": "https://i.ytimg.com/vi/fBGaQoyEz1o/hq720.jpg?sqp=-oaymwEXCNAFEJQDSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLClnpOTqstJs_w7gfhWSB-3vLwDDQ",
+            "url": "https://www.youtube.com/watch?v=fBGaQoyEz1o"
+          },
+          "createdAt": "2026-06-01T01:14:32.042Z"
+        }
+      ]
+    },
+    "9b1374d5-8d9c-44c4-87b7-6f93018a368e": {
+      "currentSong": {
+        "id": "81d6ca7b-a663-4349-a718-b8e63418aec1",
+        "singerName": "Ellis",
+        "singerToken": "e050c434-77f4-4dc2-98a6-c68e349070ea",
+        "singerSessionId": "349CC8AB",
+        "song": {
+          "videoId": "Qgmt7Hc855Y",
+          "title": "Pantropiko - BINI (Karaoke Version)",
+          "channel": "KaraokeyTV",
+          "duration": "4:08",
+          "durationSeconds": 248,
+          "thumbnail": "https://i.ytimg.com/vi/Qgmt7Hc855Y/hq720.jpg?sqp=-oaymwEXCNAFEJQDSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLB0uJb7_ZDDNLMZ9EB27ujJSHsgFQ",
+          "url": "https://www.youtube.com/watch?v=Qgmt7Hc855Y"
+        },
+        "createdAt": "2026-06-01T01:19:29.675Z"
+      },
+      "queue": [
+        {
+          "id": "6587618c-4d75-460f-8082-48d7967ffddc",
+          "singerName": "Ellis",
+          "singerToken": "e050c434-77f4-4dc2-98a6-c68e349070ea",
+          "singerSessionId": "349CC8AB",
+          "song": {
+            "videoId": "dsCk4VHSdMg",
+            "title": "BINI - Salamin, Salamin (Karaoke Version)",
+            "channel": "Sing King",
+            "duration": "4:07",
+            "durationSeconds": 247,
+            "thumbnail": "https://i.ytimg.com/vi/dsCk4VHSdMg/hq720.jpg?sqp=-oaymwEXCNAFEJQDSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLDWJJn5gyYbijgyiDHMJFfGEeORpg",
+            "url": "https://www.youtube.com/watch?v=dsCk4VHSdMg"
+          },
+          "createdAt": "2026-06-01T01:19:30.438Z"
+        },
+        {
+          "id": "9340259b-b5e1-4ebd-92cb-cd64683bc708",
+          "singerName": "Ellis",
+          "singerToken": "e050c434-77f4-4dc2-98a6-c68e349070ea",
+          "singerSessionId": "349CC8AB",
+          "song": {
+            "videoId": "yLyAFwJ_ogg",
+            "title": "Katabi - BINI | Karaoke",
+            "channel": "Lyrics Through Time",
+            "duration": "2:53",
+            "durationSeconds": 173,
+            "thumbnail": "https://i.ytimg.com/vi/yLyAFwJ_ogg/hq720.jpg?sqp=-oaymwEXCNAFEJQDSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLBnAR3HliXaO66HU8YxGfuBLxALVw",
+            "url": "https://www.youtube.com/watch?v=yLyAFwJ_ogg"
+          },
+          "createdAt": "2026-06-01T01:19:45.290Z"
+        },
+        {
+          "id": "eb4292c3-a3e9-439d-8b0d-c745016b2124",
+          "singerName": "Ellis",
+          "singerToken": "ab9f5e91-84a3-4854-89d1-ba8cfedc99ab",
+          "singerSessionId": "893C8901",
+          "song": {
+            "videoId": "sPMA1tqWuf4",
+            "title": "Ed Sheeran - Perfect (Karaoke Version)",
+            "channel": "Sing King",
+            "duration": "4:56",
+            "durationSeconds": 296,
+            "thumbnail": "https://i.ytimg.com/vi/sPMA1tqWuf4/hq720.jpg?sqp=-oaymwEXCNAFEJQDSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLCHhV3h0n9qTEoZogYv8Ku5jrhBMg",
+            "url": "https://www.youtube.com/watch?v=sPMA1tqWuf4"
+          },
+          "createdAt": "2026-06-01T01:23:52.198Z"
+        },
+        {
+          "id": "0f660e8f-0536-47da-8056-e6b128254690",
+          "singerName": "Ellis",
+          "singerToken": "ab9f5e91-84a3-4854-89d1-ba8cfedc99ab",
+          "singerSessionId": "893C8901",
+          "song": {
+            "videoId": "5QBn1B-6cPc",
+            "title": "Perfect - Ed Sheeran (Karaoke Songs With Lyrics - Original Key)",
+            "channel": "Musisi Karaoke",
+            "duration": "4:38",
+            "durationSeconds": 278,
+            "thumbnail": "https://i.ytimg.com/vi/5QBn1B-6cPc/hq720.jpg?sqp=-oaymwEXCNAFEJQDSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLCW2bVXrFUozyZRaDKRefmZj5H6fw",
+            "url": "https://www.youtube.com/watch?v=5QBn1B-6cPc"
+          },
+          "createdAt": "2026-06-01T01:23:53.218Z"
+        }
+      ]
+    },
+    "0b9b911e-8572-4b94-b2f0-47235a88051e": {
+      "currentSong": null,
+      "queue": []
     }
   }
 }
