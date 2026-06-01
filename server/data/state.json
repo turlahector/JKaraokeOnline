@@ -1125,85 +1125,69 @@
     },
     "9b1374d5-8d9c-44c4-87b7-6f93018a368e": {
       "currentSong": {
-        "id": "81d6ca7b-a663-4349-a718-b8e63418aec1",
-        "singerName": "Ellis",
-        "singerToken": "e050c434-77f4-4dc2-98a6-c68e349070ea",
-        "singerSessionId": "349CC8AB",
+        "id": "932fed4b-07ea-4dab-a393-9e76f2ffb095",
+        "singerName": "Singer",
+        "singerToken": "0cc01d70-58d1-47b0-8cdd-148c2347861d",
+        "singerSessionId": "AF03F212",
         "song": {
-          "videoId": "Qgmt7Hc855Y",
-          "title": "Pantropiko - BINI (Karaoke Version)",
-          "channel": "KaraokeyTV",
-          "duration": "4:08",
-          "durationSeconds": 248,
-          "thumbnail": "https://i.ytimg.com/vi/Qgmt7Hc855Y/hq720.jpg?sqp=-oaymwEXCNAFEJQDSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLB0uJb7_ZDDNLMZ9EB27ujJSHsgFQ",
-          "url": "https://www.youtube.com/watch?v=Qgmt7Hc855Y"
+          "videoId": "GHII68L153E",
+          "title": "Muli (Karaoke Version) – Bugoy Drilon | OPM Karaoke with Lyrics",
+          "channel": "Karaoke All-Stars",
+          "duration": "4:05",
+          "durationSeconds": 245,
+          "thumbnail": "https://i.ytimg.com/vi/GHII68L153E/hq720.jpg?sqp=-oaymwEXCNAFEJQDSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLDPTuyV3IsoQFDSD5SwuJsGhvouPw",
+          "url": "https://www.youtube.com/watch?v=GHII68L153E"
         },
-        "createdAt": "2026-06-01T01:19:29.675Z"
+        "createdAt": "2026-06-01T08:24:01.653Z"
       },
       "queue": [
         {
-          "id": "6587618c-4d75-460f-8082-48d7967ffddc",
-          "singerName": "Ellis",
-          "singerToken": "e050c434-77f4-4dc2-98a6-c68e349070ea",
-          "singerSessionId": "349CC8AB",
+          "id": "0eff3b82-07e9-49d0-b359-577c65f90d14",
+          "singerName": "Singer",
+          "singerToken": "0cc01d70-58d1-47b0-8cdd-148c2347861d",
+          "singerSessionId": "AF03F212",
           "song": {
-            "videoId": "dsCk4VHSdMg",
-            "title": "BINI - Salamin, Salamin (Karaoke Version)",
+            "videoId": "Kbh--yAhjAE",
+            "title": "YOU - Basil Valdez (HD Karaoke)",
+            "channel": "Atomic Karaoke... ",
+            "duration": "4:13",
+            "durationSeconds": 253,
+            "thumbnail": "https://i.ytimg.com/vi/Kbh--yAhjAE/hq720.jpg?sqp=-oaymwEXCNAFEJQDSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLAApKxw9kulBxATkI1D6GwOm4bF3A",
+            "url": "https://www.youtube.com/watch?v=Kbh--yAhjAE"
+          },
+          "createdAt": "2026-06-01T08:24:02.254Z"
+        },
+        {
+          "id": "ab9f2aae-de31-425d-8dbb-128d8d3e4e76",
+          "singerName": "Singer",
+          "singerToken": "0cc01d70-58d1-47b0-8cdd-148c2347861d",
+          "singerSessionId": "AF03F212",
+          "song": {
+            "videoId": "9eFKTDA-pk8",
+            "title": "Up Dharma Down - Tadhana (Karaoke Version)",
             "channel": "Sing King",
-            "duration": "4:07",
-            "durationSeconds": 247,
-            "thumbnail": "https://i.ytimg.com/vi/dsCk4VHSdMg/hq720.jpg?sqp=-oaymwEXCNAFEJQDSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLDWJJn5gyYbijgyiDHMJFfGEeORpg",
-            "url": "https://www.youtube.com/watch?v=dsCk4VHSdMg"
+            "duration": "3:49",
+            "durationSeconds": 229,
+            "thumbnail": "https://i.ytimg.com/vi/9eFKTDA-pk8/hq720.jpg?sqp=-oaymwEXCNAFEJQDSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLCNST1Ymiz-mDaUe7N7cMIVUcwQcg",
+            "url": "https://www.youtube.com/watch?v=9eFKTDA-pk8"
           },
-          "createdAt": "2026-06-01T01:19:30.438Z"
+          "createdAt": "2026-06-01T08:24:03.393Z"
         },
         {
-          "id": "9340259b-b5e1-4ebd-92cb-cd64683bc708",
-          "singerName": "Ellis",
-          "singerToken": "e050c434-77f4-4dc2-98a6-c68e349070ea",
-          "singerSessionId": "349CC8AB",
+          "id": "92b574d5-4f7e-4ac0-90eb-6b199fa5c412",
+          "singerName": "Singer",
+          "singerToken": "0cc01d70-58d1-47b0-8cdd-148c2347861d",
+          "singerSessionId": "AF03F212",
           "song": {
-            "videoId": "yLyAFwJ_ogg",
-            "title": "Katabi - BINI | Karaoke",
-            "channel": "Lyrics Through Time",
-            "duration": "2:53",
-            "durationSeconds": 173,
-            "thumbnail": "https://i.ytimg.com/vi/yLyAFwJ_ogg/hq720.jpg?sqp=-oaymwEXCNAFEJQDSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLBnAR3HliXaO66HU8YxGfuBLxALVw",
-            "url": "https://www.youtube.com/watch?v=yLyAFwJ_ogg"
+            "videoId": "LxDR4dkynVQ",
+            "title": "Ipagpatawad mo - Male Version - OPM Acoustic karaoke",
+            "channel": "OPM AcousticKaraoke PH",
+            "duration": "3:32",
+            "durationSeconds": 212,
+            "thumbnail": "https://i.ytimg.com/vi/LxDR4dkynVQ/hq720.jpg?sqp=-oaymwEXCNAFEJQDSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLBXyvRfmRD7zpS4S9rSDOvLBYQ01g",
+            "url": "https://www.youtube.com/watch?v=LxDR4dkynVQ"
           },
-          "createdAt": "2026-06-01T01:19:45.290Z"
-        },
-        {
-          "id": "eb4292c3-a3e9-439d-8b0d-c745016b2124",
-          "singerName": "Ellis",
-          "singerToken": "ab9f5e91-84a3-4854-89d1-ba8cfedc99ab",
-          "singerSessionId": "893C8901",
-          "song": {
-            "videoId": "sPMA1tqWuf4",
-            "title": "Ed Sheeran - Perfect (Karaoke Version)",
-            "channel": "Sing King",
-            "duration": "4:56",
-            "durationSeconds": 296,
-            "thumbnail": "https://i.ytimg.com/vi/sPMA1tqWuf4/hq720.jpg?sqp=-oaymwEXCNAFEJQDSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLCHhV3h0n9qTEoZogYv8Ku5jrhBMg",
-            "url": "https://www.youtube.com/watch?v=sPMA1tqWuf4"
-          },
-          "createdAt": "2026-06-01T01:23:52.198Z"
-        },
-        {
-          "id": "0f660e8f-0536-47da-8056-e6b128254690",
-          "singerName": "Ellis",
-          "singerToken": "ab9f5e91-84a3-4854-89d1-ba8cfedc99ab",
-          "singerSessionId": "893C8901",
-          "song": {
-            "videoId": "5QBn1B-6cPc",
-            "title": "Perfect - Ed Sheeran (Karaoke Songs With Lyrics - Original Key)",
-            "channel": "Musisi Karaoke",
-            "duration": "4:38",
-            "durationSeconds": 278,
-            "thumbnail": "https://i.ytimg.com/vi/5QBn1B-6cPc/hq720.jpg?sqp=-oaymwEXCNAFEJQDSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLCW2bVXrFUozyZRaDKRefmZj5H6fw",
-            "url": "https://www.youtube.com/watch?v=5QBn1B-6cPc"
-          },
-          "createdAt": "2026-06-01T01:23:53.218Z"
+          "createdAt": "2026-06-01T08:24:04.338Z"
         }
       ]
     },

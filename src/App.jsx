@@ -46,17 +46,25 @@ function formatTime(isoDate) {
   return new Date(isoDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 }
 
-function YouTubePlayer({ videoId, title, onEnded }) {
+function YouTubePlayer({ videoId, title, onEnded, onPlaybackBlocked }) {
   const containerRef = useRef(null)
   const playerRef = useRef(null)
   const onEndedRef = useRef(onEnded)
+  const onPlaybackBlockedRef = useRef(onPlaybackBlocked)
 
   useEffect(() => {
     onEndedRef.current = onEnded
   }, [onEnded])
 
   useEffect(() => {
+    onPlaybackBlockedRef.current = onPlaybackBlocked
+  }, [onPlaybackBlocked])
+
+  useEffect(() => {
     let isUnmounted = false
+    let hasHandledPlaybackError = false
+    let hasStartedPlayback = false
+    const retryTimeouts = []
 
     loadYouTubeApi()
       .then((YT) => {
@@ -75,10 +83,91 @@ function YouTubePlayer({ videoId, title, onEnded }) {
             playsinline: 1,
           },
           events: {
+            onReady: (event) => {
+              // Some browsers occasionally ignore autoplay in iframe params.
+              // Explicitly request playback and retry briefly if needed.
+              const attemptAutoPlay = () => {
+                try {
+                  event.target.playVideo()
+                } catch {
+                  // Ignore player API readiness timing issues.
+                }
+
+                // Mobile/TV browsers may allow autoplay only after muted start.
+                try {
+                  const state = event.target.getPlayerState?.()
+                  if (state !== YT.PlayerState.PLAYING && state !== YT.PlayerState.BUFFERING) {
+                    const wasMuted = event.target.isMuted?.()
+                    event.target.mute?.()
+                    event.target.playVideo()
+                    const unmuteTimeout = setTimeout(() => {
+                      if (isUnmounted || !playerRef.current) return
+                      if (!wasMuted) {
+                        try {
+                          event.target.unMute?.()
+                        } catch {
+                          // Ignore unmute failures.
+                        }
+                      }
+                    }, 450)
+                    retryTimeouts.push(unmuteTimeout)
+                  }
+                } catch {
+                  // Ignore transient state/read issues from iframe API.
+                }
+              }
+
+              attemptAutoPlay()
+
+              ;[400, 1000, 1800, 3000].forEach((delayMs) => {
+                const timeoutId = setTimeout(() => {
+                  if (isUnmounted || !playerRef.current) return
+
+                  try {
+                    const state = playerRef.current.getPlayerState()
+                    if (state !== YT.PlayerState.PLAYING && state !== YT.PlayerState.BUFFERING) {
+                      attemptAutoPlay()
+                    }
+                  } catch {
+                    // Ignore transient state/read issues from iframe API.
+                  }
+                }, delayMs)
+
+                retryTimeouts.push(timeoutId)
+              })
+            },
             onStateChange: (event) => {
+              if (event.data === YT.PlayerState.PLAYING) {
+                hasStartedPlayback = true
+              }
+
               if (event.data === YT.PlayerState.ENDED) {
                 onEndedRef.current?.()
               }
+
+              if (event.data === YT.PlayerState.CUED || event.data === YT.PlayerState.UNSTARTED) {
+                try {
+                  event.target.playVideo()
+                } catch {
+                  // Ignore autoplay restrictions; host can still tap play manually.
+                }
+              }
+
+              if (event.data === YT.PlayerState.PAUSED && !hasStartedPlayback) {
+                try {
+                  event.target.playVideo()
+                } catch {
+                  // Ignore autoplay restrictions; fallback retries are already scheduled.
+                }
+              }
+            },
+            onError: (event) => {
+              const errorCode = Number(event?.data)
+              const shouldSkip = errorCode === 5 || errorCode === 100 || errorCode === 101 || errorCode === 150
+              if (!shouldSkip || hasHandledPlaybackError) return
+
+              hasHandledPlaybackError = true
+              onPlaybackBlockedRef.current?.(errorCode)
             },
           },
         })
@@ -87,6 +176,7 @@ function YouTubePlayer({ videoId, title, onEnded }) {
 
     return () => {
       isUnmounted = true
+      retryTimeouts.forEach((timeoutId) => clearTimeout(timeoutId))
       if (playerRef.current) {
         playerRef.current.destroy()
         playerRef.current = null
@@ -252,6 +342,7 @@ function ScreenView({
   onMoveReservation,
   onRemoveReservation,
   onSongEnded,
+  onPlaybackBlocked,
   onCopySingerUrl,
   onHostLogout,
   isLoading,
@@ -260,6 +351,7 @@ function ScreenView({
   const nowPlayingRef = useRef(null)
   const [isNowPlayingFullscreen, setIsNowPlayingFullscreen] = useState(false)
   const [isFallbackFullscreen, setIsFallbackFullscreen] = useState(false)
+  const [preferFullscreen, setPreferFullscreen] = useState(false)
   const isPanelFullscreen = isNowPlayingFullscreen || isFallbackFullscreen
 
   useEffect(() => {
@@ -270,7 +362,14 @@ function ScreenView({
         document.mozFullScreenElement ||
         document.msFullscreenElement
 
-      setIsNowPlayingFullscreen(fullscreenElement === nowPlayingRef.current)
+      const isNativeFullscreenOnPanel = fullscreenElement === nowPlayingRef.current
+      setIsNowPlayingFullscreen(isNativeFullscreenOnPanel)
+
+      if (!isNativeFullscreenOnPanel && preferFullscreen && !isFallbackFullscreen) {
+        // If browser drops native fullscreen unexpectedly (common on some mobile/TV flows),
+        // keep the immersive layout through our CSS fallback mode.
+        setIsFallbackFullscreen(true)
+      }
     }
 
     document.addEventListener('fullscreenchange', syncFullscreenState)
@@ -281,7 +380,20 @@ function ScreenView({
       document.removeEventListener('fullscreenchange', syncFullscreenState)
       document.removeEventListener('webkitfullscreenchange', syncFullscreenState)
     }
-  }, [])
+  }, [isFallbackFullscreen, preferFullscreen])
+
+  useEffect(() => {
+    if (!preferFullscreen) return
+    if (isPanelFullscreen) return
+
+    // Some browsers exit native fullscreen when the iframe source changes.
+    // Keep the immersive experience by re-entering fallback fullscreen.
+    const timeoutId = setTimeout(() => {
+      setIsFallbackFullscreen(true)
+    }, 120)
+
+    return () => clearTimeout(timeoutId)
+  }, [preferFullscreen, isPanelFullscreen, currentSong?.id])
 
   useEffect(() => {
     if (!isFallbackFullscreen) {
@@ -303,10 +415,8 @@ function ScreenView({
 
     if (isFallbackFullscreen) {
       setIsFallbackFullscreen(false)
-      return
-    }
+      setPreferFullscreen(false)
 
-    try {
       const fullscreenElement =
         document.fullscreenElement ||
         document.webkitFullscreenElement ||
@@ -319,20 +429,30 @@ function ScreenView({
         } else if (document.webkitExitFullscreen) {
           document.webkitExitFullscreen()
         }
-        return
       }
+      return
+    }
 
-      if (target.requestFullscreen) {
-        await target.requestFullscreen()
-      } else if (target.webkitRequestFullscreen) {
-        target.webkitRequestFullscreen()
-      } else {
-        setIsFallbackFullscreen(true)
-      }
-    } catch {
-      // Mobile browsers can block fullscreen on arbitrary elements.
+    // Use stable app-level fullscreen first to avoid browser-native fullscreen drops
+    // when YouTube iframe changes video state.
+    setPreferFullscreen(true)
+    setIsFallbackFullscreen(true)
+  }
+
+  const keepFullscreenBeforeTransition = () => {
+    if (preferFullscreen && !isFallbackFullscreen) {
       setIsFallbackFullscreen(true)
     }
+  }
+
+  const handleStartNextFromView = () => {
+    keepFullscreenBeforeTransition()
+    onStartNext?.()
+  }
+
+  const handleSongEndedFromView = () => {
+    keepFullscreenBeforeTransition()
+    onSongEnded?.()
   }
 
   return (
@@ -395,7 +515,8 @@ function ScreenView({
               <YouTubePlayer
                 videoId={currentSong.song.videoId}
                 title={currentSong.song.title}
-                onEnded={onSongEnded}
+                onEnded={handleSongEndedFromView}
+                onPlaybackBlocked={onPlaybackBlocked}
               />
             </>
           ) : (
@@ -406,7 +527,7 @@ function ScreenView({
               <button
                 type="button"
                 className="empty-play-btn"
-                onClick={onStartNext}
+                onClick={handleStartNextFromView}
                 disabled={isLoading || queue.length === 0}
               >
                 {isLoading ? 'Starting...' : 'Play Next Song'}
@@ -446,7 +567,7 @@ function ScreenView({
             {singerLinkMessage ? <p className="muted token-message">{singerLinkMessage}</p> : null}
           </section>
           <div className="row actions">
-            <button type="button" onClick={onStartNext} disabled={isLoading}>
+            <button type="button" onClick={handleStartNextFromView} disabled={isLoading}>
               Next
             </button>
             <button type="button" className="secondary" onClick={onClearCurrent} disabled={isLoading}>
@@ -1010,6 +1131,11 @@ function App() {
     }
   }
 
+  const handlePlaybackBlocked = (errorCode) => {
+    setToastMessage(`This video can't play in embedded mode (code ${errorCode}). Skipping to next song...`)
+    void handleStartNext()
+  }
+
   const handleClearCurrent = async () => {
     if (!hostToken || !singerAccessToken) {
       setError('Host login required.')
@@ -1136,6 +1262,7 @@ function App() {
             onMoveReservation={handleMoveReservation}
             onRemoveReservation={handleHostRemoveReservation}
             onSongEnded={handleStartNext}
+            onPlaybackBlocked={handlePlaybackBlocked}
             onCopySingerUrl={handleCopySingerUrl}
             onHostLogout={handleHostLogout}
             isLoading={isLoading}
