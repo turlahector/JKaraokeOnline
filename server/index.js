@@ -136,9 +136,7 @@ app.post('/api/host/login', (req, res) => {
 
   const token = crypto.randomUUID()
   const singerAccessToken =
-    reuseSingerAccessToken && requestedSingerAccessToken && state.rooms[requestedSingerAccessToken]
-      ? requestedSingerAccessToken
-      : crypto.randomUUID()
+    reuseSingerAccessToken && requestedSingerAccessToken ? requestedSingerAccessToken : crypto.randomUUID()
   hostTokens.add(token)
   hostSessions.set(token, singerAccessToken)
   getRoomByToken(singerAccessToken)
