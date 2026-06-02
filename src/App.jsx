@@ -478,7 +478,12 @@ function ScreenView({
           </div>
           <section className="reservation-strip-section">
             <div className="reservation-strip-header">
-              <h3 className="queue-title">Reserved Songs</h3>
+              <h3 className="queue-title">
+                Reserved Songs
+                <span className="queue-count-badge">
+                  {queue.length} remaining{queue.length === 1 ? '' : 's'}
+                </span>
+              </h3>
               {isPanelFullscreen && singerShareUrl ? (
                 <div className="fullscreen-qr-wrapper" aria-label="Singer QR code">
                   <QRCodeSVG value={singerShareUrl} size={92} bgColor="#ffffff" fgColor="#0f172a" includeMargin />
