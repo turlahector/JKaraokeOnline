@@ -209,12 +209,23 @@ function PhoneView({
   searchResults,
   queue,
   isSearching,
-  isReserving,
+  reservingVideoId,
   error,
   toastMessage,
   onReserveSong,
   onRemoveReservation,
 }) {
+  const reservedSongVideoIds = useMemo(
+    () =>
+      new Set(
+        queue
+          .filter((reservation) => reservation.singerToken === singerToken)
+          .map((reservation) => reservation.song?.videoId)
+          .filter(Boolean),
+      ),
+    [queue, singerToken],
+  )
+
   return (
     <main className="layout phone">
       <header className="card">
@@ -284,9 +295,26 @@ function PhoneView({
                         {item.channel} - {item.duration}
                       </p>
                     </div>
-                    <button type="button" disabled={isReserving} onClick={() => onReserveSong(item)}>
-                      Reserve
-                    </button>
+                    {(() => {
+                      const isReservingThis = reservingVideoId === item.videoId
+                      const isAlreadyReserved = reservedSongVideoIds.has(item.videoId)
+                      const isDisabled = isReservingThis || isAlreadyReserved
+
+                      return (
+                        <button type="button" disabled={isDisabled} onClick={() => onReserveSong(item)}>
+                          {isReservingThis ? (
+                            <span className="loading-button-content">
+                              <span className="button-spinner" aria-hidden="true" />
+                              Reserving...
+                            </span>
+                          ) : isAlreadyReserved ? (
+                            'Reserved'
+                          ) : (
+                            'Reserve'
+                          )}
+                        </button>
+                      )
+                    })()}
                   </li>
                 ))}
               </ul>
@@ -760,7 +788,7 @@ function App() {
   const [queue, setQueue] = useState([])
   const [currentSong, setCurrentSong] = useState(null)
   const [isSearching, setIsSearching] = useState(false)
-  const [isReserving, setIsReserving] = useState(false)
+  const [reservingVideoId, setReservingVideoId] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(() =>
     shouldResetSingerSessionOnLoad
@@ -980,7 +1008,7 @@ function App() {
       return
     }
 
-    setIsReserving(true)
+    setReservingVideoId(song.videoId)
     setError('')
     try {
       const response = await fetch('/api/reservations', {
@@ -1011,7 +1039,7 @@ function App() {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Reservation failed.')
     } finally {
-      setIsReserving(false)
+      setReservingVideoId('')
     }
   }
 
@@ -1321,7 +1349,7 @@ function App() {
           searchResults={searchResults}
           queue={queue}
           isSearching={isSearching}
-          isReserving={isReserving}
+          reservingVideoId={reservingVideoId}
           error={error}
           toastMessage={toastMessage}
           onReserveSong={handleReserveSong}
