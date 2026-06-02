@@ -492,9 +492,8 @@ function ScreenView({
                 <div className="reservation-strip" role="list" aria-label="Reserved songs queue">
                   {queue.map((reservation, index) => (
                     <article key={reservation.id} className="reservation-card" role="listitem">
-                      <p className="reservation-order">#{index + 1}</p>
-                      <p className="reservation-song" title={reservation.song.title}>
-                        {reservation.song.title}
+                      <p className="reservation-song" title={`${index + 1}. ${reservation.song.title}`}>
+                        <span className="reservation-order">#{index + 1}</span> {reservation.song.title}
                       </p>
                       <p className="reservation-requester" title={reservation.singerName}>
                         Requested by: {reservation.singerName}

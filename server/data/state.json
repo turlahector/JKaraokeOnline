@@ -1125,53 +1125,69 @@
     },
     "9b1374d5-8d9c-44c4-87b7-6f93018a368e": {
       "currentSong": {
-        "id": "0eff3b82-07e9-49d0-b359-577c65f90d14",
-        "singerName": "Singer",
-        "singerToken": "0cc01d70-58d1-47b0-8cdd-148c2347861d",
-        "singerSessionId": "AF03F212",
+        "id": "143f960a-8ca4-4d8b-a0ca-92f0134db7f2",
+        "singerName": "Jay",
+        "singerToken": "7c02881b-0635-48cd-a6c7-c066578fd159",
+        "singerSessionId": "CA74AA54",
         "song": {
-          "videoId": "Kbh--yAhjAE",
-          "title": "YOU - Basil Valdez (HD Karaoke)",
-          "channel": "Atomic Karaoke... ",
-          "duration": "4:13",
-          "durationSeconds": 253,
-          "thumbnail": "https://i.ytimg.com/vi/Kbh--yAhjAE/hq720.jpg?sqp=-oaymwEXCNAFEJQDSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLAApKxw9kulBxATkI1D6GwOm4bF3A",
-          "url": "https://www.youtube.com/watch?v=Kbh--yAhjAE"
+          "videoId": "lVb0zlKyWjE",
+          "title": "Parting Time - KARAOKE VERSION - As popularized by Rockstar",
+          "channel": "PVT Crossover",
+          "duration": "3:34",
+          "durationSeconds": 214,
+          "thumbnail": "https://i.ytimg.com/vi/lVb0zlKyWjE/hq720.jpg?sqp=-oaymwEXCNAFEJQDSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLC4nbkG50WToSw2wPcadth6P-ClQw",
+          "url": "https://www.youtube.com/watch?v=lVb0zlKyWjE"
         },
-        "createdAt": "2026-06-01T08:24:02.254Z"
+        "createdAt": "2026-06-02T00:26:04.281Z"
       },
       "queue": [
         {
-          "id": "ab9f2aae-de31-425d-8dbb-128d8d3e4e76",
-          "singerName": "Singer",
-          "singerToken": "0cc01d70-58d1-47b0-8cdd-148c2347861d",
-          "singerSessionId": "AF03F212",
+          "id": "33f0bff0-53f1-432d-902d-3efc4c6f845a",
+          "singerName": "Jay",
+          "singerToken": "7c02881b-0635-48cd-a6c7-c066578fd159",
+          "singerSessionId": "CA74AA54",
           "song": {
-            "videoId": "9eFKTDA-pk8",
-            "title": "Up Dharma Down - Tadhana (Karaoke Version)",
-            "channel": "Sing King",
-            "duration": "3:49",
-            "durationSeconds": 229,
-            "thumbnail": "https://i.ytimg.com/vi/9eFKTDA-pk8/hq720.jpg?sqp=-oaymwEXCNAFEJQDSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLCNST1Ymiz-mDaUe7N7cMIVUcwQcg",
-            "url": "https://www.youtube.com/watch?v=9eFKTDA-pk8"
+            "videoId": "5nQtMqbvVqE",
+            "title": "Kenny Rogers - Through The Years ( Karaoke )",
+            "channel": "KaraokeyTV",
+            "duration": "4:46",
+            "durationSeconds": 286,
+            "thumbnail": "https://i.ytimg.com/vi/5nQtMqbvVqE/hq720.jpg?sqp=-oaymwEXCNAFEJQDSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLDks5uEwdPB3n9Wa6y5SoB6uuwR9w",
+            "url": "https://www.youtube.com/watch?v=5nQtMqbvVqE"
           },
-          "createdAt": "2026-06-01T08:24:03.393Z"
+          "createdAt": "2026-06-02T00:26:05.031Z"
         },
         {
-          "id": "92b574d5-4f7e-4ac0-90eb-6b199fa5c412",
-          "singerName": "Singer",
-          "singerToken": "0cc01d70-58d1-47b0-8cdd-148c2347861d",
-          "singerSessionId": "AF03F212",
+          "id": "3b330a90-5d9f-43bf-a7cb-066a4def182d",
+          "singerName": "Jay",
+          "singerToken": "7c02881b-0635-48cd-a6c7-c066578fd159",
+          "singerSessionId": "CA74AA54",
           "song": {
-            "videoId": "LxDR4dkynVQ",
-            "title": "Ipagpatawad mo - Male Version - OPM Acoustic karaoke",
-            "channel": "OPM AcousticKaraoke PH",
-            "duration": "3:32",
-            "durationSeconds": 212,
-            "thumbnail": "https://i.ytimg.com/vi/LxDR4dkynVQ/hq720.jpg?sqp=-oaymwEXCNAFEJQDSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLBXyvRfmRD7zpS4S9rSDOvLBYQ01g",
-            "url": "https://www.youtube.com/watch?v=LxDR4dkynVQ"
+            "videoId": "VwuOa2F9jk4",
+            "title": "With a Smile - ERASERHEADS (KARAOKE)",
+            "channel": "PRO music COVER",
+            "duration": "4:20",
+            "durationSeconds": 260,
+            "thumbnail": "https://i.ytimg.com/vi/VwuOa2F9jk4/hq720.jpg?sqp=-oaymwEXCNAFEJQDSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLAiQZDIwrxglZKD8n23QuRkVDwi-w",
+            "url": "https://www.youtube.com/watch?v=VwuOa2F9jk4"
           },
-          "createdAt": "2026-06-01T08:24:04.338Z"
+          "createdAt": "2026-06-02T00:26:06.365Z"
+        },
+        {
+          "id": "70b33e8d-ea7e-4ff6-a8db-9d17b5badfbe",
+          "singerName": "Jay",
+          "singerToken": "7c02881b-0635-48cd-a6c7-c066578fd159",
+          "singerSessionId": "CA74AA54",
+          "song": {
+            "videoId": "8di0DYO8kj0",
+            "title": "KISAPMATA - Rivermaya (Karaoke Version)",
+            "channel": "Global KaraokeyTV",
+            "duration": "4:49",
+            "durationSeconds": 289,
+            "thumbnail": "https://i.ytimg.com/vi/8di0DYO8kj0/hq720.jpg?sqp=-oaymwEXCNAFEJQDSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLAgRyvvmyCSZR6QkENG3o237kn63A",
+            "url": "https://www.youtube.com/watch?v=8di0DYO8kj0"
+          },
+          "createdAt": "2026-06-02T00:26:08.165Z"
         }
       ]
     },

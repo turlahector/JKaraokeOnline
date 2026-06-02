@@ -19,6 +19,11 @@
   align-items: start;
 }
 
+img,
+iframe {
+  max-width: 100%;
+}
+
 .screen-left-panel {
   text-align: left;
   min-height: 80vh;
@@ -46,6 +51,12 @@
 .fullscreen-btn {
   padding: 0.5rem 0.75rem;
   font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.compact-mode-btn {
+  padding: 0.42rem 0.68rem;
+  font-size: 0.74rem;
   white-space: nowrap;
 }
 
@@ -124,6 +135,107 @@
   scrollbar-width: thin;
 }
 
+.compact-host-mode .host-header-card {
+  padding: 0.58rem 0.68rem;
+  margin-bottom: 0.6rem;
+}
+
+.compact-host-mode .host-header-card p {
+  display: none;
+}
+
+.compact-host-mode .screen-grid {
+  gap: 0.65rem;
+}
+
+.compact-host-mode .card {
+  padding: 0.72rem;
+  margin-bottom: 0.72rem;
+}
+
+.compact-host-mode .now-playing-header {
+  margin-bottom: 0.5rem;
+}
+
+.compact-host-mode .reservation-strip-section {
+  margin-top: 0.35rem;
+  padding-top: 0.55rem;
+}
+
+.compact-host-mode .reservation-strip {
+  gap: 0.35rem;
+  padding-bottom: 0.2rem;
+}
+
+.compact-host-mode .reservation-card {
+  min-width: 130px;
+  max-width: 160px;
+  padding: 0.38rem 0.44rem;
+}
+
+.compact-host-mode .reservation-song {
+  margin-bottom: 0;
+  font-size: 0.78rem;
+}
+
+.compact-host-mode .reservation-requester,
+.compact-host-mode .strip-hint,
+.compact-host-mode .panel-info,
+.compact-host-mode .token-label,
+.compact-host-mode .token-hint,
+.compact-host-mode .token-message,
+.compact-host-mode .compact-queue-item .muted {
+  display: none;
+}
+
+.compact-host-mode .now-playing-meta {
+  margin-top: 0.35rem;
+}
+
+.compact-host-mode .now-playing-meta .song-title {
+  font-size: 0.94rem;
+}
+
+.compact-host-mode .now-playing-meta .muted {
+  font-size: 0.76rem;
+}
+
+.compact-host-mode .player-wrapper {
+  margin-top: 0.45rem;
+}
+
+.compact-host-mode .screen-right-panel {
+  gap: 0.6rem;
+}
+
+.compact-host-mode .host-token-panel {
+  padding: 0.6rem;
+}
+
+.compact-host-mode .share-title {
+  margin-bottom: 0.2rem;
+  font-size: 0.85rem;
+}
+
+.compact-host-mode .qr-wrapper svg {
+  width: 132px;
+  height: 132px;
+}
+
+.compact-host-mode .token-value {
+  padding: 0.45rem;
+  margin-bottom: 0.4rem;
+  font-size: 0.7rem;
+}
+
+.compact-host-mode .queue-section {
+  padding-top: 0.55rem;
+}
+
+.compact-host-mode .compact-queue-item .song-title {
+  font-size: 0.78rem;
+}
+
 .screen-right-panel::-webkit-scrollbar {
   width: 10px;
 }
@@ -131,6 +243,10 @@
 .screen-right-panel::-webkit-scrollbar-thumb {
   background: rgba(148, 163, 184, 0.3);
   border-radius: 999px;
+}
+
+.screen-right-panel h2 {
+  margin-bottom: 0.55rem;
 }
 
 .queue-section {
@@ -690,10 +806,12 @@ button.danger:hover {
 .player-card:fullscreen .reservation-strip,
 .player-card:-webkit-full-screen .reservation-strip {
   padding: 0.1rem 0 0.2rem;
+  padding-right: 6.6rem;
 }
 
 .player-card-mobile-fullscreen .reservation-strip {
   padding: 0.1rem 0 0.2rem;
+  padding-right: 5.2rem;
 }
 
 .player-card:fullscreen .reservation-card,
@@ -716,6 +834,12 @@ button.danger:hover {
 
 .player-card-mobile-fullscreen .strip-hint {
   display: none;
+}
+
+.player-card:fullscreen .reservation-strip-header,
+.player-card:-webkit-full-screen .reservation-strip-header,
+.player-card-mobile-fullscreen .reservation-strip-header {
+  padding-right: 0.15rem;
 }
 
 .player-card:fullscreen .now-playing-meta,
@@ -775,7 +899,7 @@ button.danger:hover {
   min-height: 0;
   height: auto;
   padding-top: 0;
-  margin-top: 0.55rem;
+  margin-top: 9.4rem;
 }
 
 .player-card-mobile-fullscreen .player-wrapper {
@@ -783,7 +907,7 @@ button.danger:hover {
   min-height: 0;
   height: auto;
   padding-top: 0;
-  margin-top: 0.55rem;
+  margin-top: 8.8rem;
 }
 
 .player-wrapper {
@@ -826,29 +950,28 @@ button.danger:hover {
 }
 
 .reservation-order {
-  margin: 0 0 0.15rem;
   color: #67e8f9;
   font-size: 0.78rem;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
 }
 
 .reservation-song {
-  margin: 0 0 0.2rem;
+  margin: 0 0 0.24rem;
   color: var(--text);
   font-weight: 700;
-  line-height: 1.3;
-  font-size: 0.9rem;
+  line-height: 1.2;
+  font-size: 0.82rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  display: block;
+  min-height: 0;
 }
 
 .reservation-requester {
   margin: 0;
   color: var(--text-muted);
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -884,7 +1007,122 @@ button.danger:hover {
   box-shadow: 0 12px 26px rgba(0, 0, 0, 0.35);
 }
 
+@media (max-width: 1200px) {
+  .screen-grid {
+    grid-template-columns: minmax(0, 74fr) minmax(250px, 26fr);
+    gap: 0.95rem;
+  }
+
+  .screen-left-panel,
+  .screen-right-panel {
+    min-height: 74vh;
+    max-height: 74vh;
+  }
+}
+
 @media (max-width: 680px) {
+  .layout {
+    padding: 0.65rem;
+  }
+
+  .layout.screen {
+    max-width: 100vw;
+  }
+
+  .card {
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+    border-radius: 0.75rem;
+  }
+
+  .host-header-card {
+    padding: 0.6rem 0.72rem;
+  }
+
+  .host-header-card h1 {
+    font-size: 1.05rem;
+  }
+
+  .host-header-card p {
+    font-size: 0.76rem;
+  }
+
+  .now-playing-header {
+    gap: 0.5rem;
+    margin-bottom: 0.55rem;
+  }
+
+  .now-playing-header h2 {
+    font-size: 1.05rem;
+  }
+
+  .now-playing-tools {
+    width: 100%;
+    align-items: stretch;
+  }
+
+  .compact-mode-btn,
+  .fullscreen-btn {
+    width: 100%;
+  }
+
+  .reservation-strip-section {
+    margin-top: 0.55rem;
+    padding-top: 0.65rem;
+  }
+
+  .queue-title {
+    font-size: 0.82rem;
+  }
+
+  .reservation-strip {
+    gap: 0.45rem;
+    padding-bottom: 0.3rem;
+  }
+
+  .reservation-card {
+    min-width: 145px;
+    max-width: 175px;
+    padding: 0.45rem 0.5rem;
+  }
+
+  .reservation-song {
+    font-size: 0.8rem;
+  }
+
+  .reservation-requester {
+    font-size: 0.72rem;
+  }
+
+  .strip-hint {
+    font-size: 0.7rem;
+  }
+
+  .now-playing-meta .song-title {
+    font-size: 1rem;
+  }
+
+  .now-playing-meta .muted {
+    font-size: 0.82rem;
+  }
+
+  .player-wrapper {
+    margin-top: 0.5rem;
+  }
+
+  .screen-right-panel {
+    gap: 0.72rem;
+  }
+
+  .host-token-panel {
+    padding: 0.62rem;
+  }
+
+  .qr-wrapper svg {
+    width: 132px;
+    height: 132px;
+  }
+
   .song-item {
     grid-template-columns: 1fr;
   }
@@ -901,7 +1139,7 @@ button.danger:hover {
     align-items: stretch;
   }
 
-  button {
+  .phone button {
     width: 100%;
   }
 }
@@ -924,5 +1162,632 @@ button.danger:hover {
 
   .screen-right-panel {
     max-height: none;
+  }
+}
+
+/* Phone landscape: keep controls visible without excessive scrolling */
+@media (max-height: 540px) and (orientation: landscape) {
+  .layout {
+    padding: 0.55rem;
+  }
+
+  .card {
+    padding: 0.62rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .host-header-card {
+    padding: 0.48rem 0.6rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .host-header-card h1 {
+    font-size: 1rem;
+    margin-bottom: 0.1rem;
+  }
+
+  .host-header-card p {
+    font-size: 0.72rem;
+  }
+
+  .screen-grid {
+    grid-template-columns: minmax(0, 68fr) minmax(230px, 32fr);
+    gap: 0.55rem;
+  }
+
+  .screen-left-panel,
+  .screen-right-panel {
+    min-height: calc(100vh - 5.3rem);
+    max-height: calc(100vh - 5.3rem);
+    overflow: auto;
+  }
+
+  .now-playing-header {
+    margin-bottom: 0.4rem;
+  }
+
+  .now-playing-header h2 {
+    font-size: 0.98rem;
+  }
+
+  .fullscreen-btn,
+  .compact-mode-btn {
+    padding: 0.36rem 0.55rem;
+    font-size: 0.7rem;
+  }
+
+  .reservation-strip-section {
+    margin-top: 0.34rem;
+    padding-top: 0.45rem;
+  }
+
+  .reservation-strip {
+    gap: 0.3rem;
+    padding-bottom: 0.2rem;
+  }
+
+  .reservation-card {
+    min-width: 120px;
+    max-width: 145px;
+    padding: 0.34rem 0.4rem;
+  }
+
+  .reservation-song {
+    font-size: 0.72rem;
+  }
+
+  .reservation-requester {
+    font-size: 0.67rem;
+  }
+
+  .strip-hint {
+    display: none;
+  }
+
+  .now-playing-meta {
+    margin-top: 0.3rem;
+  }
+
+  .now-playing-meta .song-title {
+    font-size: 0.86rem;
+  }
+
+  .now-playing-meta .muted {
+    font-size: 0.72rem;
+  }
+
+  .player-wrapper {
+    margin-top: 0.35rem;
+  }
+
+  .host-token-panel {
+    padding: 0.5rem;
+  }
+
+  .share-title {
+    font-size: 0.8rem;
+    margin-bottom: 0.2rem;
+  }
+
+  .token-value {
+    padding: 0.4rem;
+    font-size: 0.68rem;
+    margin-bottom: 0.35rem;
+  }
+
+  .qr-wrapper {
+    margin-bottom: 0.4rem;
+  }
+
+  .qr-wrapper svg {
+    width: 110px;
+    height: 110px;
+  }
+
+  .row.actions {
+    gap: 0.35rem;
+  }
+
+  .row.actions button {
+    padding: 0.4rem 0.58rem;
+    font-size: 0.72rem;
+  }
+
+  .queue-section {
+    padding-top: 0.45rem;
+  }
+
+  .compact-list {
+    gap: 0.34rem;
+  }
+
+  .compact-queue-item {
+    padding: 0.34rem;
+  }
+
+  .compact-queue-item .song-title {
+    font-size: 0.73rem;
+  }
+
+  .vertical-controls button {
+    min-width: 1.55rem;
+    padding: 0.28rem 0.35rem;
+    font-size: 0.68rem;
+  }
+
+  .panel-info {
+    font-size: 0.74rem;
+    margin-top: 0.4rem;
+  }
+}
+
+/* Very small phones (portrait) */
+@media (max-width: 390px) and (orientation: portrait) {
+  .host-header-card h1 {
+    font-size: 0.98rem;
+  }
+
+  .reservation-card {
+    min-width: 130px;
+    max-width: 150px;
+  }
+
+  .qr-wrapper svg {
+    width: 120px;
+    height: 120px;
+  }
+
+  .token-value {
+    font-size: 0.67rem;
+  }
+}
+
+/* Final mobile-first overrides for host screen */
+@media (max-width: 900px) {
+  .layout.screen {
+    max-width: 100vw !important;
+    padding: 0.55rem !important;
+  }
+
+  .layout.screen .screen-grid {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 0.6rem !important;
+  }
+
+  .layout.screen .screen-left-panel,
+  .layout.screen .screen-right-panel {
+    min-height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .layout.screen .screen-left-panel {
+    order: 1;
+    padding: 0.68rem !important;
+  }
+
+  .layout.screen .screen-right-panel {
+    order: 2;
+    padding: 0.68rem !important;
+    gap: 0.55rem !important;
+  }
+
+  .layout.screen .host-header-card {
+    padding: 0.58rem 0.68rem !important;
+    margin-bottom: 0.6rem !important;
+  }
+
+  .layout.screen .host-header-card h1 {
+    font-size: 1rem !important;
+  }
+
+  .layout.screen .host-header-card p {
+    font-size: 0.74rem !important;
+  }
+
+  .layout.screen .now-playing-header {
+    margin-bottom: 0.45rem !important;
+    gap: 0.45rem !important;
+  }
+
+  .layout.screen .now-playing-header h2 {
+    font-size: 1rem !important;
+  }
+
+  .layout.screen .now-playing-tools {
+    width: 100%;
+    align-items: stretch !important;
+  }
+
+  .layout.screen .fullscreen-btn,
+  .layout.screen .compact-mode-btn {
+    width: 100% !important;
+    padding: 0.4rem 0.56rem !important;
+    font-size: 0.72rem !important;
+  }
+
+  .layout.screen .reservation-strip-section {
+    margin-top: 0.35rem !important;
+    padding-top: 0.5rem !important;
+  }
+
+  .layout.screen .reservation-strip {
+    gap: 0.35rem !important;
+    padding-bottom: 0.2rem !important;
+  }
+
+  .layout.screen .reservation-card {
+    min-width: 128px !important;
+    max-width: 154px !important;
+    padding: 0.35rem 0.4rem !important;
+  }
+
+  .layout.screen .reservation-song {
+    font-size: 0.74rem !important;
+  }
+
+  .layout.screen .reservation-requester,
+  .layout.screen .strip-hint {
+    display: none !important;
+  }
+
+  .layout.screen .now-playing-meta {
+    margin-top: 0.3rem !important;
+  }
+
+  .layout.screen .now-playing-meta .song-title {
+    font-size: 0.9rem !important;
+  }
+
+  .layout.screen .now-playing-meta .muted {
+    font-size: 0.74rem !important;
+  }
+
+  .layout.screen .player-wrapper {
+    margin-top: 0.38rem !important;
+    border-radius: 0.65rem;
+    overflow: hidden;
+  }
+
+  .layout.screen .host-token-panel {
+    padding: 0.52rem !important;
+  }
+
+  .layout.screen .share-title {
+    font-size: 0.8rem !important;
+  }
+
+  .layout.screen .qr-wrapper svg {
+    width: 108px !important;
+    height: 108px !important;
+  }
+
+  .layout.screen .token-value {
+    font-size: 0.67rem !important;
+    padding: 0.38rem !important;
+    margin-bottom: 0.28rem !important;
+  }
+
+  .layout.screen .token-label,
+  .layout.screen .token-hint,
+  .layout.screen .token-message,
+  .layout.screen .panel-info {
+    display: none !important;
+  }
+
+  .layout.screen .row.actions {
+    flex-direction: row !important;
+    flex-wrap: wrap;
+    gap: 0.32rem !important;
+  }
+
+  .layout.screen .row.actions button {
+    width: auto !important;
+    flex: 1 1 auto;
+    min-width: 72px;
+    padding: 0.36rem 0.5rem !important;
+    font-size: 0.7rem !important;
+  }
+
+  .layout.screen .queue-section {
+    padding-top: 0.45rem !important;
+  }
+
+  .layout.screen .compact-list {
+    gap: 0.32rem !important;
+  }
+
+  .layout.screen .compact-queue-item {
+    padding: 0.32rem !important;
+  }
+
+  .layout.screen .compact-queue-item .song-title {
+    font-size: 0.72rem !important;
+    margin-bottom: 0 !important;
+  }
+
+  .layout.screen .compact-queue-item .muted {
+    display: none !important;
+  }
+
+  .layout.screen .vertical-controls {
+    flex-direction: row !important;
+    gap: 0.25rem !important;
+  }
+
+  .layout.screen .vertical-controls button {
+    min-width: 1.45rem !important;
+    padding: 0.25rem 0.3rem !important;
+    font-size: 0.64rem !important;
+  }
+}
+
+@media (max-width: 900px) and (orientation: landscape) {
+  .layout.screen .screen-grid {
+    grid-template-columns: minmax(0, 65fr) minmax(210px, 35fr) !important;
+  }
+
+  .layout.screen .screen-left-panel,
+  .layout.screen .screen-right-panel {
+    min-height: calc(100vh - 4.7rem) !important;
+    max-height: calc(100vh - 4.7rem) !important;
+    overflow: auto !important;
+  }
+
+  .layout.screen .screen-left-panel {
+    order: 1;
+  }
+
+  .layout.screen .screen-right-panel {
+    order: 1;
+  }
+}
+
+/* Final host mobile stabilization (portrait + landscape phones) */
+@media (max-width: 900px) {
+  .layout.screen {
+    max-width: 100vw !important;
+    padding: 0.6rem !important;
+    overflow-x: hidden;
+  }
+
+  .layout.screen .screen-grid {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 0.72rem !important;
+  }
+
+  .layout.screen .card,
+  .layout.screen .screen-left-panel,
+  .layout.screen .screen-right-panel,
+  .layout.screen .host-token-panel {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    overflow-x: hidden;
+  }
+
+  .layout.screen .screen-left-panel,
+  .layout.screen .screen-right-panel {
+    min-height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .layout.screen .host-header-card {
+    padding: 0.62rem 0.72rem !important;
+    margin-bottom: 0.62rem !important;
+  }
+
+  .layout.screen .host-header-card h1 {
+    font-size: 1.06rem !important;
+  }
+
+  .layout.screen .host-header-card p {
+    font-size: 0.76rem !important;
+  }
+
+  .layout.screen .now-playing-header {
+    margin-bottom: 0.5rem !important;
+    gap: 0.5rem !important;
+  }
+
+  .layout.screen .now-playing-tools {
+    width: auto !important;
+    align-items: flex-end !important;
+  }
+
+  .layout.screen .fullscreen-btn {
+    width: auto !important;
+    min-width: 106px;
+    padding: 0.42rem 0.62rem !important;
+    font-size: 0.74rem !important;
+  }
+
+  .layout.screen .reservation-strip-section {
+    margin-top: 0.4rem !important;
+    padding-top: 0.55rem !important;
+  }
+
+  .layout.screen .reservation-strip {
+    gap: 0.4rem !important;
+    padding-bottom: 0.24rem !important;
+  }
+
+  .layout.screen .reservation-card {
+    min-width: 144px !important;
+    max-width: 172px !important;
+    padding: 0.4rem 0.45rem !important;
+  }
+
+  .layout.screen .reservation-song {
+    font-size: 0.78rem !important;
+  }
+
+  .layout.screen .reservation-requester {
+    font-size: 0.71rem !important;
+  }
+
+  .layout.screen .strip-hint {
+    font-size: 0.7rem !important;
+    margin-top: 0.25rem !important;
+  }
+
+  .layout.screen .now-playing-meta .song-title {
+    font-size: 0.96rem !important;
+  }
+
+  .layout.screen .now-playing-meta .muted {
+    font-size: 0.8rem !important;
+  }
+
+  .layout.screen .player-wrapper {
+    margin-top: 0.45rem !important;
+    aspect-ratio: 16 / 9 !important;
+    max-height: 46vh;
+  }
+
+  .layout.screen .player-wrapper iframe,
+  .layout.screen .player-wrapper .youtube-player {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain;
+  }
+
+  .layout.screen .screen-right-panel {
+    gap: 0.66rem !important;
+    padding: 0.72rem !important;
+  }
+
+  .layout.screen .host-token-panel {
+    padding: 0.62rem !important;
+  }
+
+  .layout.screen .qr-wrapper {
+    margin-bottom: 0.45rem !important;
+  }
+
+  .layout.screen .qr-wrapper svg {
+    width: 120px !important;
+    height: 120px !important;
+  }
+
+  .layout.screen .token-value {
+    width: 100% !important;
+    min-width: 0 !important;
+    font-size: 0.69rem !important;
+    padding: 0.42rem !important;
+    margin-bottom: 0.36rem !important;
+  }
+
+  .layout.screen .row.actions {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    gap: 0.4rem !important;
+  }
+
+  .layout.screen .row.actions button {
+    width: auto !important;
+    flex: 1 1 calc(33.333% - 0.4rem) !important;
+    min-width: 78px;
+    padding: 0.38rem 0.52rem !important;
+    font-size: 0.71rem !important;
+  }
+
+  .layout.screen .queue-section {
+    padding-top: 0.52rem !important;
+  }
+
+  .layout.screen .compact-list {
+    gap: 0.36rem !important;
+  }
+
+  .layout.screen .compact-queue-item {
+    padding: 0.36rem !important;
+    grid-template-columns: 1fr auto !important;
+  }
+
+  .layout.screen .compact-queue-item .song-title {
+    font-size: 0.74rem !important;
+    line-height: 1.2;
+    margin-bottom: 0.1rem !important;
+  }
+
+  .layout.screen .compact-queue-item .muted {
+    font-size: 0.68rem !important;
+  }
+
+  .layout.screen .vertical-controls {
+    flex-direction: row !important;
+    gap: 0.24rem !important;
+  }
+
+  .layout.screen .vertical-controls button {
+    min-width: 1.5rem !important;
+    padding: 0.26rem 0.32rem !important;
+    font-size: 0.65rem !important;
+  }
+}
+
+@media (max-width: 900px) and (orientation: landscape) {
+  .layout.screen .screen-grid {
+    grid-template-columns: minmax(0, 64fr) minmax(220px, 36fr) !important;
+  }
+
+  .layout.screen .screen-left-panel,
+  .layout.screen .screen-right-panel {
+    min-height: calc(100vh - 4.9rem) !important;
+    max-height: calc(100vh - 4.9rem) !important;
+    overflow: auto !important;
+  }
+
+  .layout.screen .player-wrapper {
+    max-height: 58vh;
+  }
+}
+
+
+/* Mobile host visual reset: keep layout readable, avoid over-compression */
+@media (max-width: 900px) {
+  .layout.screen .now-playing-tools {
+    width: auto !important;
+    align-items: flex-end !important;
+  }
+
+  .layout.screen .fullscreen-btn {
+    width: auto !important;
+    min-width: 104px;
+    padding: 0.42rem 0.62rem !important;
+    font-size: 0.74rem !important;
+  }
+
+  .layout.screen .host-header-card p,
+  .layout.screen .reservation-requester,
+  .layout.screen .strip-hint,
+  .layout.screen .token-label,
+  .layout.screen .token-hint,
+  .layout.screen .token-message,
+  .layout.screen .panel-info,
+  .layout.screen .compact-queue-item .muted {
+    display: block !important;
+  }
+
+  .layout.screen .row.actions {
+    flex-direction: row !important;
+    gap: 0.4rem !important;
+  }
+
+  .layout.screen .row.actions button {
+    width: auto !important;
+    flex: 0 1 auto !important;
+    min-width: 74px;
+    font-size: 0.72rem !important;
+  }
+
+  .layout.screen .reservation-card {
+    min-width: 148px !important;
+    max-width: 180px !important;
   }
 }
