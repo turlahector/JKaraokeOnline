@@ -642,6 +642,7 @@ function ScreenLoginView({
   usernameInput,
   passwordInput,
   reuseSingerUrlOnLogin,
+  isLoggingIn,
   onUsernameInputChange,
   onPasswordInputChange,
   onReuseSingerUrlOnLoginChange,
@@ -676,6 +677,7 @@ function ScreenLoginView({
             onChange={(event) => onUsernameInputChange(event.target.value)}
             placeholder="Username"
             autoComplete="username"
+            disabled={isLoggingIn}
             required
           />
           <input
@@ -684,6 +686,7 @@ function ScreenLoginView({
             onChange={(event) => onPasswordInputChange(event.target.value)}
             placeholder="Password"
             autoComplete="current-password"
+            disabled={isLoggingIn}
             required
           />
           <label className="login-option">
@@ -691,13 +694,23 @@ function ScreenLoginView({
               type="checkbox"
               checked={reuseSingerUrlOnLogin}
               onChange={(event) => onReuseSingerUrlOnLoginChange(event.target.checked)}
+              disabled={isLoggingIn}
             />
             <span className="login-option-label">
               Reuse previous singer URL token
               <small>Keeps the singer link unchanged after login.</small>
             </span>
           </label>
-          <button type="submit">Login</button>
+          <button type="submit" className={isLoggingIn ? 'loading-button' : ''} disabled={isLoggingIn}>
+            {isLoggingIn ? (
+              <span className="loading-button-content">
+                <span className="button-spinner" aria-hidden="true" />
+                Logging in... Please wait
+              </span>
+            ) : (
+              'Login'
+            )}
+          </button>
         </form>
         {loginError ? <p className="error">{loginError}</p> : null}
       </section>
@@ -756,6 +769,7 @@ function App() {
   const [usernameInput, setUsernameInput] = useState('')
   const [passwordInput, setPasswordInput] = useState('')
   const [loginError, setLoginError] = useState('')
+  const [isLoggingIn, setIsLoggingIn] = useState(false)
   const [singerAccessToken, setSingerAccessToken] = useState('')
   const [singerLinkMessage, setSingerLinkMessage] = useState('')
   const [reuseSingerUrlOnLogin, setReuseSingerUrlOnLogin] = useState(() => {
@@ -1174,6 +1188,7 @@ function App() {
   const handleHostLogin = async (event) => {
     event.preventDefault()
     setLoginError('')
+    setIsLoggingIn(true)
 
     try {
       const previousSingerAccessToken = localStorage.getItem(LAST_SINGER_ACCESS_TOKEN_KEY) || ''
@@ -1206,6 +1221,8 @@ function App() {
       return
     } catch (err) {
       setLoginError(err instanceof Error ? err.message : 'Invalid username or password.')
+    } finally {
+      setIsLoggingIn(false)
     }
   }
 
@@ -1273,6 +1290,7 @@ function App() {
             usernameInput={usernameInput}
             passwordInput={passwordInput}
             reuseSingerUrlOnLogin={reuseSingerUrlOnLogin}
+            isLoggingIn={isLoggingIn}
             onUsernameInputChange={setUsernameInput}
             onPasswordInputChange={setPasswordInput}
             onReuseSingerUrlOnLoginChange={setReuseSingerUrlOnLogin}

@@ -591,6 +591,32 @@ button:disabled {
   box-shadow: none;
 }
 
+.loading-button {
+  position: relative;
+}
+
+.loading-button-content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+}
+
+.button-spinner {
+  width: 0.95rem;
+  height: 0.95rem;
+  border-radius: 999px;
+  border: 2px solid rgba(8, 47, 73, 0.28);
+  border-top-color: #082f49;
+  animation: spin-loader 0.7s linear infinite;
+}
+
+@keyframes spin-loader {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 button.secondary {
   color: #f9fafb;
   background: linear-gradient(180deg, #475569, #334155);
