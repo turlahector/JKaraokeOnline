@@ -249,6 +249,18 @@ iframe {
   margin-bottom: 0.55rem;
 }
 
+.host-user-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem;
+}
+
+.host-user-row .muted {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
 .queue-section {
   border-top: 1px solid var(--border);
   padding-top: 0.95rem;

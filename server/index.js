@@ -3,7 +3,9 @@ import 'dotenv/config'
 import bcrypt from 'bcryptjs'
 import cors from 'cors'
 import express from 'express'
+import { createHash, randomBytes } from 'node:crypto'
 import { MongoClient } from 'mongodb'
+import nodemailer from 'nodemailer'
 import ytsr from 'ytsr'
 
 const app = express()
@@ -11,6 +13,16 @@ const port = Number(process.env.PORT) || 3001
 const MONGODB_URI = String(process.env.MONGODB_URI || '').trim()
 const MONGODB_DB_NAME = String(process.env.MONGODB_DB_NAME || 'jkaraoke').trim()
 const MONGODB_COLLECTION_NAME = String(process.env.MONGODB_COLLECTION_NAME || 'rooms').trim()
+const APP_BASE_URL = String(process.env.APP_BASE_URL || '').trim()
+const SMTP_HOST = String(process.env.SMTP_HOST || '').trim()
+const SMTP_PORT = Number(process.env.SMTP_PORT || 587)
+const SMTP_USER = String(process.env.SMTP_USER || '').trim()
+const SMTP_PASS = String(process.env.SMTP_PASS || '').trim()
+const SMTP_FROM = String(process.env.SMTP_FROM || '').trim()
+const SMTP_SECURE = String(process.env.SMTP_SECURE || '').trim() === 'true'
+const REQUIRE_EMAIL_VERIFICATION = String(process.env.REQUIRE_EMAIL_VERIFICATION || 'false').trim() === 'true'
+const EMAIL_VERIFICATION_TOKEN_TTL_MS = 24 * 60 * 60 * 1000
+const PASSWORD_RESET_TOKEN_TTL_MS = 60 * 60 * 1000
 const hostTokens = new Set()
 const hostSessions = new Map()
 const singerSessions = new Map()
@@ -18,6 +30,9 @@ const hostTokenToUser = new Map()
 let mongoClient = null
 let mongoRoomsCollection = null
 let mongoUsersCollection = null
+let mongoEmailVerificationsCollection = null
+let mongoPasswordResetsCollection = null
+let mailTransporter = null
 
 app.use(cors())
 app.use(express.json())
@@ -64,6 +79,51 @@ const sanitizeRoom = (room) => ({
 })
 
 const normalizeHostUsername = (username) => String(username || '').trim().toLowerCase()
+const normalizeEmail = (email) => String(email || '').trim().toLowerCase()
+const isValidEmailFormat = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || '').trim())
+const hashToken = (value) => createHash('sha256').update(String(value)).digest('hex')
+const createPlainToken = () => randomBytes(32).toString('hex')
+
+const resolveAppBaseUrl = (req) => {
+  if (APP_BASE_URL) return APP_BASE_URL
+  const host = String(req.get('host') || '').trim()
+  if (!host) return ''
+  return `${req.protocol}://${host}`
+}
+
+const ensureEmailDeliveryReady = () => Boolean(mailTransporter && SMTP_FROM)
+
+const sendHostEmailVerification = async ({ email, username, token, req }) => {
+  const baseUrl = resolveAppBaseUrl(req)
+  if (!baseUrl || !ensureEmailDeliveryReady()) {
+    throw new Error('Email delivery is not configured.')
+  }
+
+  const verifyUrl = `${baseUrl}/host?verify=${encodeURIComponent(token)}`
+  await mailTransporter.sendMail({
+    from: SMTP_FROM,
+    to: email,
+    subject: 'Verify your JKaraoke host account',
+    text: `Hi ${username},\n\nPlease verify your host account by opening this link:\n${verifyUrl}\n\nThis link expires in 24 hours.\n`,
+    html: `<p>Hi ${username},</p><p>Please verify your host account by opening this link:</p><p><a href="${verifyUrl}">${verifyUrl}</a></p><p>This link expires in 24 hours.</p>`,
+  })
+}
+
+const sendHostPasswordResetEmail = async ({ email, username, token, req }) => {
+  const baseUrl = resolveAppBaseUrl(req)
+  if (!baseUrl || !ensureEmailDeliveryReady()) {
+    throw new Error('Email delivery is not configured.')
+  }
+
+  const resetUrl = `${baseUrl}/host?reset=${encodeURIComponent(token)}`
+  await mailTransporter.sendMail({
+    from: SMTP_FROM,
+    to: email,
+    subject: 'Reset your JKaraoke host password',
+    text: `Hi ${username},\n\nReset your password using this link:\n${resetUrl}\n\nThis link expires in 1 hour.\nIf you did not request this, you can ignore this email.\n`,
+    html: `<p>Hi ${username},</p><p>Reset your password using this link:</p><p><a href="${resetUrl}">${resetUrl}</a></p><p>This link expires in 1 hour.</p><p>If you did not request this, you can ignore this email.</p>`,
+  })
+}
 
 const loadStateFromMongo = async () => {
   if (!mongoRoomsCollection) return false
@@ -120,8 +180,44 @@ const initializeMongoStorage = async () => {
     const db = mongoClient.db(MONGODB_DB_NAME)
     mongoRoomsCollection = db.collection(MONGODB_COLLECTION_NAME)
     mongoUsersCollection = db.collection('host_users')
+    mongoEmailVerificationsCollection = db.collection('host_email_verifications')
+    mongoPasswordResetsCollection = db.collection('host_password_resets')
     await mongoRoomsCollection.createIndex({ accessToken: 1 }, { unique: true })
     await mongoUsersCollection.createIndex({ usernameLower: 1 }, { unique: true })
+    await mongoUsersCollection.createIndex(
+      { emailLower: 1 },
+      {
+        unique: true,
+        partialFilterExpression: {
+          emailLower: { $type: 'string' },
+        },
+      },
+    )
+    await mongoEmailVerificationsCollection.createIndex({ tokenHash: 1 }, { unique: true })
+    await mongoEmailVerificationsCollection.createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 })
+    await mongoPasswordResetsCollection.createIndex({ tokenHash: 1 }, { unique: true })
+    await mongoPasswordResetsCollection.createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 })
+
+    if (SMTP_HOST && SMTP_USER && SMTP_PASS && SMTP_FROM) {
+      try {
+        mailTransporter = nodemailer.createTransport({
+          host: SMTP_HOST,
+          port: SMTP_PORT,
+          secure: SMTP_SECURE,
+          auth: {
+            user: SMTP_USER,
+            pass: SMTP_PASS,
+          },
+        })
+        await mailTransporter.verify()
+      } catch (smtpError) {
+        mailTransporter = null
+        console.error('SMTP login failed. Email features are disabled until SMTP settings are fixed:', smtpError)
+      }
+    } else {
+      mailTransporter = null
+      console.warn('SMTP settings are incomplete. Verification and password reset emails are disabled.')
+    }
     console.log(`MongoDB connected (${MONGODB_DB_NAME}.${MONGODB_COLLECTION_NAME})`)
     return true
   } catch (error) {
@@ -129,6 +225,9 @@ const initializeMongoStorage = async () => {
     mongoClient = null
     mongoRoomsCollection = null
     mongoUsersCollection = null
+    mongoEmailVerificationsCollection = null
+    mongoPasswordResetsCollection = null
+    mailTransporter = null
     return false
   }
 }
@@ -317,17 +416,61 @@ app.get('/api/host/check-username', async (req, res) => {
   }
 })
 
-app.post('/api/host/signup', async (req, res) => {
+app.get('/api/host/check-email', async (req, res) => {
   if (!mongoUsersCollection) {
+    return res.status(503).json({ error: 'Email check is unavailable. MongoDB connection is required.' })
+  }
+
+  const email = String(req.query?.email || '').trim()
+  const emailLower = normalizeEmail(email)
+
+  if (!emailLower || !isValidEmailFormat(emailLower)) {
+    return res.status(400).json({
+      available: false,
+      message: 'Please enter a valid email address.',
+    })
+  }
+
+  try {
+    const existingUser = await mongoUsersCollection.findOne({ emailLower }, { projection: { _id: 1 } })
+    if (existingUser) {
+      return res.json({
+        available: false,
+        message: 'Email is already taken. Please login or use another email.',
+      })
+    }
+
+    return res.json({
+      available: true,
+      message: 'Email is available.',
+    })
+  } catch (error) {
+    return res.status(500).json({
+      error: 'Failed to validate email. Please try again.',
+      details: error instanceof Error ? error.message : 'Unknown error',
+    })
+  }
+})
+
+app.post('/api/host/signup', async (req, res) => {
+  if (!mongoUsersCollection || !mongoEmailVerificationsCollection) {
     return res.status(503).json({ error: 'Signup is unavailable. MongoDB connection is required.' })
   }
 
   const username = String(req.body?.username || '').trim()
+  const email = String(req.body?.email || '').trim()
   const password = String(req.body?.password || '')
   const usernameLower = normalizeHostUsername(username)
+  const emailLower = normalizeEmail(email)
 
   if (!usernameLower) {
     return res.status(400).json({ error: 'Username is required.' })
+  }
+  if (!emailLower) {
+    return res.status(400).json({ error: 'Email is required.' })
+  }
+  if (!isValidEmailFormat(emailLower)) {
+    return res.status(400).json({ error: 'Please enter a valid email address.' })
   }
   if (username.length < 3) {
     return res.status(400).json({ error: 'Username must be at least 3 characters.' })
@@ -337,23 +480,61 @@ app.post('/api/host/signup', async (req, res) => {
   }
 
   try {
-    const existingUser = await mongoUsersCollection.findOne({ usernameLower }, { projection: { _id: 1 } })
-    if (existingUser) {
+    const existingUsername = await mongoUsersCollection.findOne({ usernameLower }, { projection: { _id: 1 } })
+    if (existingUsername) {
       return res.status(409).json({ error: 'Username already exists. Please choose another one.' })
+    }
+    const existingEmail = await mongoUsersCollection.findOne({ emailLower }, { projection: { _id: 1 } })
+    if (existingEmail) {
+      return res.status(409).json({ error: 'Email already exists. Please login or use another email.' })
     }
 
     const passwordHash = await bcrypt.hash(password, 12)
-    await mongoUsersCollection.insertOne({
+    const createdAt = new Date().toISOString()
+    const shouldRequireVerification = REQUIRE_EMAIL_VERIFICATION && ensureEmailDeliveryReady()
+    const insertedUser = await mongoUsersCollection.insertOne({
       username,
       usernameLower,
+      email,
+      emailLower,
       passwordHash,
-      createdAt: new Date().toISOString(),
+      emailVerified: !shouldRequireVerification,
+      createdAt,
     })
 
-    return res.status(201).json({ ok: true, message: 'Host account created. You can now login.' })
+    if (shouldRequireVerification) {
+      const plainToken = createPlainToken()
+      const tokenHash = hashToken(plainToken)
+      const expiresAt = new Date(Date.now() + EMAIL_VERIFICATION_TOKEN_TTL_MS)
+      await mongoEmailVerificationsCollection.deleteMany({ userId: insertedUser.insertedId })
+      await mongoEmailVerificationsCollection.insertOne({
+        userId: insertedUser.insertedId,
+        tokenHash,
+        createdAt,
+        expiresAt,
+      })
+
+      try {
+        await sendHostEmailVerification({ email, username, token: plainToken, req })
+      } catch (mailError) {
+        await mongoEmailVerificationsCollection.deleteMany({ userId: insertedUser.insertedId })
+        await mongoUsersCollection.deleteOne({ _id: insertedUser.insertedId })
+        throw mailError
+      }
+
+      return res.status(201).json({
+        ok: true,
+        message: 'Host account created. Please check your email and verify your account before login.',
+      })
+    }
+
+    return res.status(201).json({
+      ok: true,
+      message: 'Host account created successfully. You can now login.',
+    })
   } catch (error) {
     if (error?.code === 11000) {
-      return res.status(409).json({ error: 'Username already exists. Please choose another one.' })
+      return res.status(409).json({ error: 'Username or email already exists.' })
     }
 
     return res.status(500).json({
@@ -383,6 +564,12 @@ app.post('/api/host/login', async (req, res) => {
   if (!user || !isPasswordValid) {
     return res.status(401).json({ error: 'Invalid username or password.' })
   }
+  if (REQUIRE_EMAIL_VERIFICATION && !user.emailVerified) {
+    return res.status(403).json({
+      error: 'Please verify your email before logging in.',
+      code: 'EMAIL_NOT_VERIFIED',
+    })
+  }
 
   const token = crypto.randomUUID()
   const singerAccessToken =
@@ -392,7 +579,112 @@ app.post('/api/host/login', async (req, res) => {
   hostSessions.set(token, singerAccessToken)
   getRoomByToken(singerAccessToken)
   await persistState()
-  return res.json({ token, singerAccessToken })
+  return res.json({ token, singerAccessToken, username: user.username })
+})
+
+app.get('/api/host/verify-email', async (req, res) => {
+  if (!mongoUsersCollection || !mongoEmailVerificationsCollection) {
+    return res.status(503).json({ error: 'Email verification is unavailable right now.' })
+  }
+
+  const token = String(req.query?.token || '').trim()
+  if (!token) {
+    return res.status(400).json({ error: 'Verification token is required.' })
+  }
+
+  const tokenHash = hashToken(token)
+  const verification = await mongoEmailVerificationsCollection.findOne({ tokenHash })
+  if (!verification || new Date(verification.expiresAt).getTime() < Date.now()) {
+    return res.status(400).json({ error: 'Verification link is invalid or expired.' })
+  }
+
+  await mongoUsersCollection.updateOne(
+    { _id: verification.userId },
+    {
+      $set: {
+        emailVerified: true,
+        emailVerifiedAt: new Date().toISOString(),
+      },
+    },
+  )
+  await mongoEmailVerificationsCollection.deleteMany({ userId: verification.userId })
+  return res.json({ ok: true, message: 'Email verified successfully. You can now login.' })
+})
+
+app.post('/api/host/password/forgot', async (req, res) => {
+  if (!mongoUsersCollection || !mongoPasswordResetsCollection) {
+    return res.status(503).json({ error: 'Password reset is unavailable right now.' })
+  }
+  if (!ensureEmailDeliveryReady()) {
+    return res.status(503).json({ error: 'Password reset email service is not configured.' })
+  }
+
+  const email = String(req.body?.email || '').trim()
+  const emailLower = normalizeEmail(email)
+  if (!emailLower || !isValidEmailFormat(emailLower)) {
+    return res.status(400).json({ error: 'Please enter a valid email address.' })
+  }
+
+  const user = await mongoUsersCollection.findOne({ emailLower })
+  if (user) {
+    const plainToken = createPlainToken()
+    const tokenHash = hashToken(plainToken)
+    const nowIso = new Date().toISOString()
+    const expiresAt = new Date(Date.now() + PASSWORD_RESET_TOKEN_TTL_MS)
+
+    await mongoPasswordResetsCollection.deleteMany({ userId: user._id })
+    await mongoPasswordResetsCollection.insertOne({
+      userId: user._id,
+      tokenHash,
+      createdAt: nowIso,
+      expiresAt,
+    })
+    await sendHostPasswordResetEmail({
+      email: user.email || email,
+      username: user.username || 'Host',
+      token: plainToken,
+      req,
+    })
+  }
+
+  return res.json({
+    ok: true,
+    message: 'If that email exists, a password reset link has been sent.',
+  })
+})
+
+app.post('/api/host/password/reset', async (req, res) => {
+  if (!mongoUsersCollection || !mongoPasswordResetsCollection) {
+    return res.status(503).json({ error: 'Password reset is unavailable right now.' })
+  }
+
+  const token = String(req.body?.token || '').trim()
+  const newPassword = String(req.body?.newPassword || '')
+  if (!token) {
+    return res.status(400).json({ error: 'Reset token is required.' })
+  }
+  if (newPassword.length < 6) {
+    return res.status(400).json({ error: 'Password must be at least 6 characters.' })
+  }
+
+  const tokenHash = hashToken(token)
+  const resetToken = await mongoPasswordResetsCollection.findOne({ tokenHash })
+  if (!resetToken || new Date(resetToken.expiresAt).getTime() < Date.now()) {
+    return res.status(400).json({ error: 'Reset link is invalid or expired.' })
+  }
+
+  const passwordHash = await bcrypt.hash(newPassword, 12)
+  await mongoUsersCollection.updateOne(
+    { _id: resetToken.userId },
+    {
+      $set: {
+        passwordHash,
+        updatedAt: new Date().toISOString(),
+      },
+    },
+  )
+  await mongoPasswordResetsCollection.deleteMany({ userId: resetToken.userId })
+  return res.json({ ok: true, message: 'Password reset successful. You can now login.' })
 })
 
 app.get('/api/host/verify', (req, res) => {
@@ -401,7 +693,11 @@ app.get('/api/host/verify', (req, res) => {
     return res.status(401).json({ ok: false })
   }
 
-  return res.json({ ok: true, singerAccessToken: getSingerAccessTokenForHost(token) })
+  return res.json({
+    ok: true,
+    singerAccessToken: getSingerAccessTokenForHost(token),
+    username: hostTokenToUser.get(token) || '',
+  })
 })
 
 app.post('/api/host/logout', (req, res) => {

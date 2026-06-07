@@ -56,3 +56,19 @@ If it is missing, room state is kept in memory only (resets on server restart).
 - Hardcoded host credentials were removed.
 - Use the `/host` page to create a host account (`Sign Up`) and then login.
 - Host accounts are stored in MongoDB (`host_users` collection) with hashed passwords.
+- Email is required for signup.
+- Host login is allowed only after email verification.
+- Forgot/reset password is supported through email links.
+
+### Email delivery env vars (required for signup verification and reset password)
+
+- `APP_BASE_URL` (frontend base URL used in email links, e.g. `https://your-frontend.vercel.app`)
+- `SMTP_HOST`
+- `SMTP_PORT` (e.g. `587`)
+- `SMTP_SECURE` (`true` for SSL port 465, otherwise `false`)
+- `SMTP_USER`
+- `SMTP_PASS`
+- `SMTP_FROM` (sender email, e.g. `JKaraoke <no-reply@yourdomain.com>`)
+- `REQUIRE_EMAIL_VERIFICATION` (`true` or `false`, default: `false`)
+
+If `REQUIRE_EMAIL_VERIFICATION=false`, signup still collects and validates email but allows login immediately (no verification email required).

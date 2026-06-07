@@ -8,6 +8,7 @@ const LAST_SINGER_ACCESS_TOKEN_KEY = 'videoke_last_singer_access_token'
 const REUSE_SINGER_URL_ON_LOGIN_KEY = 'videoke_reuse_singer_url_on_login'
 const SINGER_SESSION_ACCESS_TOKEN_KEY = 'videoke_singer_access_token'
 let youtubeApiPromise
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 function loadYouTubeApi() {
   if (window.YT?.Player) {
@@ -369,6 +370,7 @@ function PhoneView({
 }
 
 function ScreenView({
+  hostUsername,
   currentSong,
   queue,
   singerAccessToken,
@@ -583,6 +585,12 @@ function ScreenView({
         </section>
 
         <aside className="card screen-right-panel">
+          <div className="host-user-row">
+            <p className="muted">Hello, {hostUsername || 'Host'}!</p>
+            <button type="button" className="secondary" onClick={onHostLogout} disabled={isLoading}>
+              Logout
+            </button>
+          </div>
           <h2>Queue & Controls</h2>
           <section className="host-token-panel">
             <p className="share-title">Share this Singer URL</p>
@@ -613,9 +621,6 @@ function ScreenView({
             </button>
             <button type="button" className="secondary" onClick={onClearCurrent} disabled={isLoading}>
               Clear
-            </button>
-            <button type="button" className="secondary" onClick={onHostLogout} disabled={isLoading}>
-              Logout
             </button>
           </div>
           <p className="muted panel-info">
@@ -682,14 +687,20 @@ function ScreenView({
 function ScreenLoginView({
   authMode,
   usernameInput,
+  emailInput,
   passwordInput,
   reuseSingerUrlOnLogin,
   isLoggingIn,
   isCheckingUsername,
+  isCheckingEmail,
   usernameValidationMessage,
+  emailValidationMessage,
   isUsernameAvailable,
+  isEmailAvailable,
   onUsernameInputChange,
   onUsernameInputBlur,
+  onEmailInputChange,
+  onEmailInputBlur,
   onPasswordInputChange,
   onAuthModeChange,
   onReuseSingerUrlOnLoginChange,
@@ -698,6 +709,9 @@ function ScreenLoginView({
   loginError,
 }) {
   const isSignupMode = authMode === 'signup'
+  const isForgotMode = authMode === 'forgot'
+  const isResetMode = authMode === 'reset'
+  const isLoginMode = authMode === 'login'
 
   return (
     <main className="layout screen login-screen">
@@ -707,10 +721,22 @@ function ScreenLoginView({
             <span className="brand-dot" aria-hidden="true" />
             JKaraoke
           </p>
-          <h1>{isSignupMode ? 'Create Host Account' : 'Host Login'}</h1>
+          <h1>
+            {isSignupMode
+              ? 'Create Host Account'
+              : isForgotMode
+                ? 'Forgot Password'
+                : isResetMode
+                  ? 'Reset Password'
+                  : 'Host Login'}
+          </h1>
           <p>
             {isSignupMode
               ? 'Create your host account to manage queue and playback controls.'
+              : isForgotMode
+                ? 'Request a password reset link via email.'
+                : isResetMode
+                  ? 'Set your new password to continue.'
               : 'Sign in to manage queue and playback controls.'}
           </p>
         </header>
@@ -726,30 +752,53 @@ function ScreenLoginView({
           </ul>
         </section>
         <form className="row login-form" onSubmit={onSubmit}>
-          <input
-            value={usernameInput}
-            onChange={(event) => onUsernameInputChange(event.target.value)}
-            onBlur={onUsernameInputBlur}
-            placeholder="Username"
-            autoComplete="username"
-            disabled={isLoggingIn}
-            required
-          />
+          {!isForgotMode && !isResetMode ? (
+            <input
+              value={usernameInput}
+              onChange={(event) => onUsernameInputChange(event.target.value)}
+              onBlur={onUsernameInputBlur}
+              placeholder="Username"
+              autoComplete="username"
+              disabled={isLoggingIn}
+              required
+            />
+          ) : null}
           {isSignupMode ? (
             <p className={isUsernameAvailable === false ? 'error' : 'muted'}>
               {isCheckingUsername ? 'Checking username...' : usernameValidationMessage || ' '}
             </p>
           ) : null}
-          <input
-            type="password"
-            value={passwordInput}
-            onChange={(event) => onPasswordInputChange(event.target.value)}
-            placeholder="Password"
-            autoComplete={isSignupMode ? 'new-password' : 'current-password'}
-            disabled={isLoggingIn}
-            required
-          />
-          {!isSignupMode ? (
+          {(isSignupMode || isForgotMode) && (
+            <>
+              <input
+                type="email"
+                value={emailInput}
+                onChange={(event) => onEmailInputChange(event.target.value)}
+                onBlur={onEmailInputBlur}
+                placeholder="Email address"
+                autoComplete="email"
+                disabled={isLoggingIn}
+                required
+              />
+              {isSignupMode ? (
+                <p className={isEmailAvailable === false ? 'error' : 'muted'}>
+                  {isCheckingEmail ? 'Checking email...' : emailValidationMessage || ' '}
+                </p>
+              ) : null}
+            </>
+          )}
+          {!isForgotMode ? (
+            <input
+              type="password"
+              value={passwordInput}
+              onChange={(event) => onPasswordInputChange(event.target.value)}
+              placeholder={isResetMode ? 'New password' : 'Password'}
+              autoComplete={isSignupMode || isResetMode ? 'new-password' : 'current-password'}
+              disabled={isLoggingIn}
+              required
+            />
+          ) : null}
+          {isLoginMode ? (
             <label className="login-option">
               <input
                 type="checkbox"
@@ -767,22 +816,59 @@ function ScreenLoginView({
             {isLoggingIn ? (
               <span className="loading-button-content">
                 <span className="button-spinner" aria-hidden="true" />
-                {isSignupMode ? 'Creating account... Please wait' : 'Logging in... Please wait'}
+                {isSignupMode
+                  ? 'Creating account... Please wait'
+                  : isForgotMode
+                    ? 'Sending reset link...'
+                    : isResetMode
+                      ? 'Resetting password...'
+                      : 'Logging in... Please wait'}
               </span>
             ) : (
-              isSignupMode ? 'Create Account' : 'Login'
+              isSignupMode
+                ? 'Create Account'
+                : isForgotMode
+                  ? 'Send Reset Link'
+                  : isResetMode
+                    ? 'Reset Password'
+                    : 'Login'
             )}
           </button>
           <p className="auth-switch-text">
-            {isSignupMode ? 'Already have an account?' : "No account yet?"}{' '}
-            <button
-              type="button"
-              className="auth-switch-link"
-              onClick={() => onAuthModeChange(isSignupMode ? 'login' : 'signup')}
-              disabled={isLoggingIn}
-            >
-              {isSignupMode ? 'Login now' : 'Sign up now'}
-            </button>
+            {isLoginMode ? (
+              <>
+                No account yet?{' '}
+                <button
+                  type="button"
+                  className="auth-switch-link"
+                  onClick={() => onAuthModeChange('signup')}
+                  disabled={isLoggingIn}
+                >
+                  Sign up now
+                </button>{' '}
+                |{' '}
+                <button
+                  type="button"
+                  className="auth-switch-link"
+                  onClick={() => onAuthModeChange('forgot')}
+                  disabled={isLoggingIn}
+                >
+                  Forgot password?
+                </button>
+              </>
+            ) : (
+              <>
+                Back to{' '}
+                <button
+                  type="button"
+                  className="auth-switch-link"
+                  onClick={() => onAuthModeChange('login')}
+                  disabled={isLoggingIn}
+                >
+                  Login
+                </button>
+              </>
+            )}
           </p>
         </form>
         {authMessage ? <p className="muted">{authMessage}</p> : null}
@@ -803,6 +889,8 @@ function App() {
   })
 
   const initialSingerAccessTokenFromUrl = new URLSearchParams(window.location.search).get('token') || ''
+  const initialHostVerifyToken = new URLSearchParams(window.location.search).get('verify') || ''
+  const initialHostResetToken = new URLSearchParams(window.location.search).get('reset') || ''
   const initialStoredSingerAccessToken = sessionStorage.getItem(SINGER_SESSION_ACCESS_TOKEN_KEY) || ''
   const shouldResetSingerSessionOnLoad = Boolean(
     initialSingerAccessTokenFromUrl &&
@@ -840,12 +928,19 @@ function App() {
   const [hostToken, setHostToken] = useState(() => sessionStorage.getItem('videoke_host_token') || '')
   const [isHostAuthenticated, setIsHostAuthenticated] = useState(false)
   const [isCheckingHostAuth, setIsCheckingHostAuth] = useState(false)
-  const [hostAuthMode, setHostAuthMode] = useState('login')
+  const [hostAuthMode, setHostAuthMode] = useState(() => (initialHostResetToken ? 'reset' : 'login'))
+  const [hostVerifyToken, setHostVerifyToken] = useState(initialHostVerifyToken)
+  const [hostResetToken, setHostResetToken] = useState(initialHostResetToken)
   const [usernameInput, setUsernameInput] = useState('')
+  const [hostUsername, setHostUsername] = useState('')
+  const [emailInput, setEmailInput] = useState('')
   const [passwordInput, setPasswordInput] = useState('')
   const [isCheckingUsername, setIsCheckingUsername] = useState(false)
+  const [isCheckingEmail, setIsCheckingEmail] = useState(false)
   const [usernameValidationMessage, setUsernameValidationMessage] = useState('')
+  const [emailValidationMessage, setEmailValidationMessage] = useState('')
   const [isUsernameAvailable, setIsUsernameAvailable] = useState(null)
+  const [isEmailAvailable, setIsEmailAvailable] = useState(null)
   const [loginError, setLoginError] = useState('')
   const [hostAuthMessage, setHostAuthMessage] = useState('')
   const [isLoggingIn, setIsLoggingIn] = useState(false)
@@ -940,11 +1035,13 @@ function App() {
         'x-host-token': hostToken,
       },
     })
-      .then((response) => {
+      .then(async (response) => {
         if (!response.ok) {
           throw new Error('Unauthorized')
         }
+        const data = await response.json()
         setIsHostAuthenticated(true)
+        setHostUsername(data.username || '')
         setLoginError('')
         return fetchSingerAccessToken(hostToken)
       })
@@ -952,6 +1049,7 @@ function App() {
         sessionStorage.removeItem('videoke_host_token')
         setHostToken('')
         setIsHostAuthenticated(false)
+        setHostUsername('')
         setLoginError('Please login again.')
         setSingerAccessToken('')
       })
@@ -959,6 +1057,31 @@ function App() {
         setIsCheckingHostAuth(false)
       })
   }, [hostToken, isScreenView])
+
+  useEffect(() => {
+    if (!isScreenView || !hostVerifyToken) return
+
+    const params = new URLSearchParams(window.location.search)
+    params.delete('verify')
+    const nextQuery = params.toString()
+    window.history.replaceState({}, '', `${window.location.pathname}${nextQuery ? `?${nextQuery}` : ''}`)
+
+    fetch(`/api/host/verify-email?token=${encodeURIComponent(hostVerifyToken)}`)
+      .then(async (response) => {
+        const data = await response.json()
+        if (!response.ok) {
+          throw new Error(data.error || 'Email verification failed.')
+        }
+        setHostAuthMessage(data.message || 'Email verified. You can now login.')
+        setHostAuthMode('login')
+      })
+      .catch((err) => {
+        setLoginError(err instanceof Error ? err.message : 'Email verification failed.')
+      })
+      .finally(() => {
+        setHostVerifyToken('')
+      })
+  }, [isScreenView, hostVerifyToken])
 
   const clearSingerSession = () => {
     sessionStorage.removeItem('videoke_singer_name')
@@ -1116,6 +1239,7 @@ function App() {
     sessionStorage.removeItem('videoke_host_token')
     setHostToken('')
     setIsHostAuthenticated(false)
+    setHostUsername('')
     setLoginError('Host session expired. Please login again.')
     setError('Host session expired. Please login again.')
     setSingerLinkMessage('')
@@ -1290,6 +1414,7 @@ function App() {
       sessionStorage.setItem('videoke_host_token', data.token)
       setHostToken(data.token)
       setIsHostAuthenticated(true)
+      setHostUsername(data.username || usernameInput.trim())
       setUsernameInput('')
       setPasswordInput('')
       setSingerLinkMessage('')
@@ -1317,12 +1442,17 @@ function App() {
       if (!usernameCheck.available) {
         throw new Error('Username already exists. Please choose another one.')
       }
+      const emailCheck = await checkSignupEmailAvailability(emailInput)
+      if (!emailCheck.available) {
+        throw new Error('Email is already taken. Please login or use another email.')
+      }
 
       const response = await fetch('/api/host/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           username: usernameInput,
+          email: emailInput,
           password: passwordInput,
         }),
       })
@@ -1333,12 +1463,74 @@ function App() {
 
       setHostAuthMode('login')
       setPasswordInput('')
+      setEmailInput('')
       setIsUsernameAvailable(null)
+      setIsEmailAvailable(null)
       setUsernameValidationMessage('')
-      setHostAuthMessage('Account created successfully. Please login.')
+      setEmailValidationMessage('')
+      setHostAuthMessage(data.message || 'Account created. Please verify your email, then login.')
       return
     } catch (err) {
       setLoginError(err instanceof Error ? err.message : 'Failed to create account.')
+    } finally {
+      setIsLoggingIn(false)
+    }
+  }
+
+  const handleForgotPassword = async (event) => {
+    event.preventDefault()
+    setLoginError('')
+    setHostAuthMessage('')
+    setIsLoggingIn(true)
+
+    try {
+      const response = await fetch('/api/host/password/forgot', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: emailInput }),
+      })
+      const data = await response.json()
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to send reset link.')
+      }
+      setHostAuthMessage(data.message || 'If that email exists, a reset link has been sent.')
+    } catch (err) {
+      setLoginError(err instanceof Error ? err.message : 'Failed to send reset link.')
+    } finally {
+      setIsLoggingIn(false)
+    }
+  }
+
+  const handleResetPassword = async (event) => {
+    event.preventDefault()
+    setLoginError('')
+    setHostAuthMessage('')
+    setIsLoggingIn(true)
+
+    try {
+      const response = await fetch('/api/host/password/reset', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          token: hostResetToken,
+          newPassword: passwordInput,
+        }),
+      })
+      const data = await response.json()
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to reset password.')
+      }
+
+      const params = new URLSearchParams(window.location.search)
+      params.delete('reset')
+      const nextQuery = params.toString()
+      window.history.replaceState({}, '', `${window.location.pathname}${nextQuery ? `?${nextQuery}` : ''}`)
+      setHostResetToken('')
+      setPasswordInput('')
+      setHostAuthMode('login')
+      setHostAuthMessage(data.message || 'Password reset successful. You can now login.')
+    } catch (err) {
+      setLoginError(err instanceof Error ? err.message : 'Failed to reset password.')
     } finally {
       setIsLoggingIn(false)
     }
@@ -1378,11 +1570,51 @@ function App() {
     }
   }
 
+  const checkSignupEmailAvailability = async (rawEmail) => {
+    const email = rawEmail.trim()
+    if (hostAuthMode !== 'signup') {
+      return { available: null }
+    }
+    if (!EMAIL_PATTERN.test(email)) {
+      setIsEmailAvailable(false)
+      setEmailValidationMessage('Please enter a valid email address.')
+      return { available: false }
+    }
+
+    setIsCheckingEmail(true)
+    try {
+      const response = await fetch(`/api/host/check-email?email=${encodeURIComponent(email)}`)
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || data.message || 'Failed to validate email.')
+      }
+
+      setIsEmailAvailable(Boolean(data.available))
+      setEmailValidationMessage(data.message || (data.available ? 'Email is available.' : 'Email is already taken.'))
+      return { available: Boolean(data.available) }
+    } catch (err) {
+      setIsEmailAvailable(null)
+      setEmailValidationMessage('')
+      throw err
+    } finally {
+      setIsCheckingEmail(false)
+    }
+  }
+
   const handleUsernameInputChange = (value) => {
     setUsernameInput(value)
     if (hostAuthMode === 'signup') {
       setIsUsernameAvailable(null)
       setUsernameValidationMessage('')
+    }
+  }
+
+  const handleEmailInputChange = (value) => {
+    setEmailInput(value)
+    if (hostAuthMode === 'signup') {
+      setIsEmailAvailable(null)
+      setEmailValidationMessage('')
     }
   }
 
@@ -1395,13 +1627,28 @@ function App() {
     }
   }
 
+  const handleEmailInputBlur = async () => {
+    if (hostAuthMode !== 'signup') return
+    try {
+      await checkSignupEmailAvailability(emailInput)
+    } catch {
+      // Keep blur validation non-blocking; submit handler still validates.
+    }
+  }
+
   const handleHostAuthModeChange = (nextMode) => {
     setHostAuthMode(nextMode)
     setLoginError('')
     setHostAuthMessage('')
     setIsCheckingUsername(false)
+    setIsCheckingEmail(false)
     setIsUsernameAvailable(null)
+    setIsEmailAvailable(null)
     setUsernameValidationMessage('')
+    setEmailValidationMessage('')
+    if (nextMode !== 'reset') {
+      setPasswordInput('')
+    }
   }
 
   const handleHostLogout = async () => {
@@ -1421,6 +1668,7 @@ function App() {
     sessionStorage.removeItem('videoke_host_token')
     setHostToken('')
     setIsHostAuthenticated(false)
+    setHostUsername('')
     setSingerLinkMessage('')
     setSingerAccessToken('')
   }
@@ -1447,6 +1695,7 @@ function App() {
           </main>
         ) : isHostAuthenticated ? (
           <ScreenView
+            hostUsername={hostUsername}
             currentSong={currentSong}
             queue={queue}
             singerAccessToken={singerAccessToken}
@@ -1467,18 +1716,32 @@ function App() {
           <ScreenLoginView
             authMode={hostAuthMode}
             usernameInput={usernameInput}
+            emailInput={emailInput}
             passwordInput={passwordInput}
             reuseSingerUrlOnLogin={reuseSingerUrlOnLogin}
             isLoggingIn={isLoggingIn}
             isCheckingUsername={isCheckingUsername}
+            isCheckingEmail={isCheckingEmail}
             usernameValidationMessage={usernameValidationMessage}
+            emailValidationMessage={emailValidationMessage}
             isUsernameAvailable={isUsernameAvailable}
+            isEmailAvailable={isEmailAvailable}
             onUsernameInputChange={handleUsernameInputChange}
             onUsernameInputBlur={handleUsernameInputBlur}
+            onEmailInputChange={handleEmailInputChange}
+            onEmailInputBlur={handleEmailInputBlur}
             onPasswordInputChange={setPasswordInput}
             onAuthModeChange={handleHostAuthModeChange}
             onReuseSingerUrlOnLoginChange={setReuseSingerUrlOnLogin}
-            onSubmit={hostAuthMode === 'signup' ? handleHostSignup : handleHostLogin}
+            onSubmit={
+              hostAuthMode === 'signup'
+                ? handleHostSignup
+                : hostAuthMode === 'forgot'
+                  ? handleForgotPassword
+                  : hostAuthMode === 'reset'
+                    ? handleResetPassword
+                    : handleHostLogin
+            }
             authMessage={hostAuthMessage}
             loginError={loginError}
           />
