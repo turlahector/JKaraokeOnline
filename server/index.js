@@ -119,25 +119,74 @@ const mapVideoSearchResult = (video) => ({
   url: `https://www.youtube.com/watch?v=${video.id}`,
 })
 
-const checkVideoEmbeddable = async (videoId) => {
-  if (!videoId) return 'unknown'
-
+const fetchWithTimeout = async (url, options = {}) => {
   const controller = new AbortController()
   const timeoutId = setTimeout(() => controller.abort(), EMBED_CHECK_TIMEOUT_MS)
+
+  try {
+    return await fetch(url, {
+      ...options,
+      signal: controller.signal,
+    })
+  } finally {
+    clearTimeout(timeoutId)
+  }
+}
+
+const checkEmbeddableViaEmbedPage = async (videoId) => {
+  const embedUrl = `https://www.youtube.com/embed/${videoId}`
+  const response = await fetchWithTimeout(embedUrl, {
+    method: 'GET',
+    headers: {
+      'User-Agent':
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
+      Accept: 'text/html',
+    },
+  })
+
+  if (!response.ok) {
+    return 'unknown'
+  }
+
+  const html = await response.text()
+  const normalized = html.toLowerCase()
+
+  if (normalized.includes('"playableinembed":false')) {
+    return 'likely_blocked'
+  }
+  if (normalized.includes('"playableinembed":true')) {
+    return 'likely_embeddable'
+  }
+  if (normalized.includes('playback on other websites has been disabled by the video owner')) {
+    return 'likely_blocked'
+  }
+
+  return 'unknown'
+}
+
+const checkVideoEmbeddable = async (videoId) => {
+  if (!videoId) return 'unknown'
 
   try {
     const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(
       `https://www.youtube.com/watch?v=${videoId}`,
     )}&format=json`
-    const response = await fetch(oembedUrl, {
-      method: 'GET',
-      signal: controller.signal,
-    })
-    return response.ok ? 'likely_embeddable' : 'likely_blocked'
+    const oembedResponse = await fetchWithTimeout(oembedUrl, { method: 'GET' })
+
+    // If oEmbed already says no, treat as blocked immediately.
+    if (!oembedResponse.ok) {
+      return 'likely_blocked'
+    }
+
+    // oEmbed can still be true for some videos that fail inside iframe.
+    const embedPageStatus = await checkEmbeddableViaEmbedPage(videoId)
+    if (embedPageStatus !== 'unknown') {
+      return embedPageStatus
+    }
+
+    return 'likely_embeddable'
   } catch {
     return 'unknown'
-  } finally {
-    clearTimeout(timeoutId)
   }
 }
 
