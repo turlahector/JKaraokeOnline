@@ -41,11 +41,6 @@ function loadYouTubeApi() {
   return youtubeApiPromise
 }
 
-function formatTime(isoDate) {
-  if (!isoDate) return '-'
-  return new Date(isoDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-}
-
 function YouTubePlayer({ videoId, title, onEnded, onPlaybackBlocked }) {
   const containerRef = useRef(null)
   const playerRef = useRef(null)
@@ -280,6 +275,38 @@ function PhoneView({
             </form>
           </section>
 
+          <section className="card singer-queue-section">
+            <div className="queue-strip-header">
+              <h2>Queue</h2>
+              <span className="queue-count-badge">{queue.length} queued</span>
+            </div>
+            {queue.length === 0 ? (
+              <p className="muted">No reservations yet.</p>
+            ) : (
+              <ul className="singer-queue-strip">
+                {queue.map((reservation, index) => (
+                  <li key={reservation.id} className="singer-queue-chip">
+                    <div>
+                      <p className="song-title">
+                        {index + 1}. {reservation.song.title}
+                      </p>
+                      <p className="muted">by {reservation.singerName}</p>
+                    </div>
+                    {reservation.singerToken === singerToken ? (
+                      <button
+                        type="button"
+                        className="danger singer-queue-cancel"
+                        onClick={() => onRemoveReservation(reservation.id)}
+                      >
+                        Cancel
+                      </button>
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+
           <section className="card">
             <h2>Results</h2>
             {searchResults.length === 0 ? (
@@ -330,33 +357,6 @@ function PhoneView({
           </section>
         </>
       )}
-
-      <section className="card">
-        <h2>Queue</h2>
-        {queue.length === 0 ? (
-          <p className="muted">No reservations yet.</p>
-        ) : (
-          <ul className="list">
-            {queue.map((reservation, index) => (
-              <li key={reservation.id} className="queue-item">
-                <div>
-                  <p className="song-title">
-                    {index + 1}. {reservation.song.title}
-                  </p>
-                  <p className="muted">
-                    Singer: {reservation.singerName} | Reserved at {formatTime(reservation.createdAt)}
-                  </p>
-                </div>
-                {reservation.singerToken === singerToken && (
-                  <button type="button" className="danger" onClick={() => onRemoveReservation(reservation.id)}>
-                    Cancel
-                  </button>
-                )}
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
 
       {error ? <p className="error">{error}</p> : null}
       {toastMessage ? (
@@ -680,16 +680,25 @@ function ScreenView({
 }
 
 function ScreenLoginView({
+  authMode,
   usernameInput,
   passwordInput,
   reuseSingerUrlOnLogin,
   isLoggingIn,
+  isCheckingUsername,
+  usernameValidationMessage,
+  isUsernameAvailable,
   onUsernameInputChange,
+  onUsernameInputBlur,
   onPasswordInputChange,
+  onAuthModeChange,
   onReuseSingerUrlOnLoginChange,
-  onLogin,
+  onSubmit,
+  authMessage,
   loginError,
 }) {
+  const isSignupMode = authMode === 'signup'
+
   return (
     <main className="layout screen login-screen">
       <section className="card login-shell">
@@ -698,8 +707,12 @@ function ScreenLoginView({
             <span className="brand-dot" aria-hidden="true" />
             JKaraoke
           </p>
-          <h1>Host Login</h1>
-          <p>Sign in to manage queue and playback controls.</p>
+          <h1>{isSignupMode ? 'Create Host Account' : 'Host Login'}</h1>
+          <p>
+            {isSignupMode
+              ? 'Create your host account to manage queue and playback controls.'
+              : 'Sign in to manage queue and playback controls.'}
+          </p>
         </header>
         <section className="login-app-info">
           <p className="login-app-summary">
@@ -712,47 +725,67 @@ function ScreenLoginView({
             <li>Use fullscreen mode for TV-style playback.</li>
           </ul>
         </section>
-        <form className="row login-form" onSubmit={onLogin}>
+        <form className="row login-form" onSubmit={onSubmit}>
           <input
             value={usernameInput}
             onChange={(event) => onUsernameInputChange(event.target.value)}
+            onBlur={onUsernameInputBlur}
             placeholder="Username"
             autoComplete="username"
             disabled={isLoggingIn}
             required
           />
+          {isSignupMode ? (
+            <p className={isUsernameAvailable === false ? 'error' : 'muted'}>
+              {isCheckingUsername ? 'Checking username...' : usernameValidationMessage || ' '}
+            </p>
+          ) : null}
           <input
             type="password"
             value={passwordInput}
             onChange={(event) => onPasswordInputChange(event.target.value)}
             placeholder="Password"
-            autoComplete="current-password"
+            autoComplete={isSignupMode ? 'new-password' : 'current-password'}
             disabled={isLoggingIn}
             required
           />
-          <label className="login-option">
-            <input
-              type="checkbox"
-              checked={reuseSingerUrlOnLogin}
-              onChange={(event) => onReuseSingerUrlOnLoginChange(event.target.checked)}
-              disabled={isLoggingIn}
-            />
-            <span className="login-option-label">
-              Reuse previous singer URL token
-              <small>Keeps the singer link unchanged after login.</small>
-            </span>
-          </label>
+          {!isSignupMode ? (
+            <label className="login-option">
+              <input
+                type="checkbox"
+                checked={reuseSingerUrlOnLogin}
+                onChange={(event) => onReuseSingerUrlOnLoginChange(event.target.checked)}
+                disabled={isLoggingIn}
+              />
+              <span className="login-option-label">
+                Reuse previous singer URL token
+                <small>Keeps the singer link unchanged after login.</small>
+              </span>
+            </label>
+          ) : null}
           <button type="submit" className={isLoggingIn ? 'loading-button' : ''} disabled={isLoggingIn}>
             {isLoggingIn ? (
               <span className="loading-button-content">
                 <span className="button-spinner" aria-hidden="true" />
-                Logging in... Please wait
+                {isSignupMode ? 'Creating account... Please wait' : 'Logging in... Please wait'}
               </span>
             ) : (
-              'Login'
+              isSignupMode ? 'Create Account' : 'Login'
             )}
           </button>
+          <p className="auth-switch-text">
+            {isSignupMode ? 'Already have an account?' : "No account yet?"}{' '}
+            <button
+              type="button"
+              className="auth-switch-link"
+              onClick={() => onAuthModeChange(isSignupMode ? 'login' : 'signup')}
+              disabled={isLoggingIn}
+            >
+              {isSignupMode ? 'Login now' : 'Sign up now'}
+            </button>
+          </p>
         </form>
+        {authMessage ? <p className="muted">{authMessage}</p> : null}
         {loginError ? <p className="error">{loginError}</p> : null}
       </section>
     </main>
@@ -807,9 +840,14 @@ function App() {
   const [hostToken, setHostToken] = useState(() => sessionStorage.getItem('videoke_host_token') || '')
   const [isHostAuthenticated, setIsHostAuthenticated] = useState(false)
   const [isCheckingHostAuth, setIsCheckingHostAuth] = useState(false)
+  const [hostAuthMode, setHostAuthMode] = useState('login')
   const [usernameInput, setUsernameInput] = useState('')
   const [passwordInput, setPasswordInput] = useState('')
+  const [isCheckingUsername, setIsCheckingUsername] = useState(false)
+  const [usernameValidationMessage, setUsernameValidationMessage] = useState('')
+  const [isUsernameAvailable, setIsUsernameAvailable] = useState(null)
   const [loginError, setLoginError] = useState('')
+  const [hostAuthMessage, setHostAuthMessage] = useState('')
   const [isLoggingIn, setIsLoggingIn] = useState(false)
   const [singerAccessToken, setSingerAccessToken] = useState('')
   const [singerLinkMessage, setSingerLinkMessage] = useState('')
@@ -1229,6 +1267,7 @@ function App() {
   const handleHostLogin = async (event) => {
     event.preventDefault()
     setLoginError('')
+    setHostAuthMessage('')
     setIsLoggingIn(true)
 
     try {
@@ -1265,6 +1304,104 @@ function App() {
     } finally {
       setIsLoggingIn(false)
     }
+  }
+
+  const handleHostSignup = async (event) => {
+    event.preventDefault()
+    setLoginError('')
+    setHostAuthMessage('')
+    setIsLoggingIn(true)
+
+    try {
+      const usernameCheck = await checkSignupUsernameAvailability(usernameInput)
+      if (!usernameCheck.available) {
+        throw new Error('Username already exists. Please choose another one.')
+      }
+
+      const response = await fetch('/api/host/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: usernameInput,
+          password: passwordInput,
+        }),
+      })
+      const data = await response.json()
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create account.')
+      }
+
+      setHostAuthMode('login')
+      setPasswordInput('')
+      setIsUsernameAvailable(null)
+      setUsernameValidationMessage('')
+      setHostAuthMessage('Account created successfully. Please login.')
+      return
+    } catch (err) {
+      setLoginError(err instanceof Error ? err.message : 'Failed to create account.')
+    } finally {
+      setIsLoggingIn(false)
+    }
+  }
+
+  const checkSignupUsernameAvailability = async (rawUsername) => {
+    const username = rawUsername.trim()
+    if (hostAuthMode !== 'signup') {
+      return { available: null }
+    }
+    if (username.length < 3) {
+      setIsUsernameAvailable(false)
+      setUsernameValidationMessage('Username must be at least 3 characters.')
+      return { available: false }
+    }
+
+    setIsCheckingUsername(true)
+    try {
+      const response = await fetch(`/api/host/check-username?username=${encodeURIComponent(username)}`)
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || data.message || 'Failed to validate username.')
+      }
+
+      setIsUsernameAvailable(Boolean(data.available))
+      setUsernameValidationMessage(
+        data.message || (data.available ? 'Username is available.' : 'Username already exists.'),
+      )
+      return { available: Boolean(data.available) }
+    } catch (err) {
+      setIsUsernameAvailable(null)
+      setUsernameValidationMessage('')
+      throw err
+    } finally {
+      setIsCheckingUsername(false)
+    }
+  }
+
+  const handleUsernameInputChange = (value) => {
+    setUsernameInput(value)
+    if (hostAuthMode === 'signup') {
+      setIsUsernameAvailable(null)
+      setUsernameValidationMessage('')
+    }
+  }
+
+  const handleUsernameInputBlur = async () => {
+    if (hostAuthMode !== 'signup') return
+    try {
+      await checkSignupUsernameAvailability(usernameInput)
+    } catch {
+      // Keep blur validation non-blocking; submit handler still validates.
+    }
+  }
+
+  const handleHostAuthModeChange = (nextMode) => {
+    setHostAuthMode(nextMode)
+    setLoginError('')
+    setHostAuthMessage('')
+    setIsCheckingUsername(false)
+    setIsUsernameAvailable(null)
+    setUsernameValidationMessage('')
   }
 
   const handleHostLogout = async () => {
@@ -1328,14 +1465,21 @@ function App() {
           />
         ) : (
           <ScreenLoginView
+            authMode={hostAuthMode}
             usernameInput={usernameInput}
             passwordInput={passwordInput}
             reuseSingerUrlOnLogin={reuseSingerUrlOnLogin}
             isLoggingIn={isLoggingIn}
-            onUsernameInputChange={setUsernameInput}
+            isCheckingUsername={isCheckingUsername}
+            usernameValidationMessage={usernameValidationMessage}
+            isUsernameAvailable={isUsernameAvailable}
+            onUsernameInputChange={handleUsernameInputChange}
+            onUsernameInputBlur={handleUsernameInputBlur}
             onPasswordInputChange={setPasswordInput}
+            onAuthModeChange={handleHostAuthModeChange}
             onReuseSingerUrlOnLoginChange={setReuseSingerUrlOnLogin}
-            onLogin={handleHostLogin}
+            onSubmit={hostAuthMode === 'signup' ? handleHostSignup : handleHostLogin}
+            authMessage={hostAuthMessage}
             loginError={loginError}
           />
         )

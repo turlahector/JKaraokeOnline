@@ -545,6 +545,31 @@ iframe {
   font-size: 0.78rem;
 }
 
+.auth-switch-text {
+  margin: 0.2rem 0 0;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.auth-switch-link {
+  background: none;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  margin: 0;
+  color: var(--accent);
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.auth-switch-link:hover {
+  filter: none;
+  transform: none;
+  color: #67e8f9;
+}
+
 .session-refresh-panel {
   margin: 0.65rem 0 0.55rem;
   border: 1px solid rgba(56, 189, 248, 0.35);
@@ -659,6 +684,59 @@ button.danger:hover {
   padding: 0;
   display: grid;
   gap: 0.7rem;
+}
+
+.singer-queue-section {
+  padding-bottom: 0.75rem;
+}
+
+.singer-queue-strip {
+  list-style: none;
+  margin: 0;
+  padding: 0.1rem 0 0.15rem;
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.singer-queue-chip {
+  min-width: min(280px, 78vw);
+  max-width: min(320px, 86vw);
+  border: 1px solid rgba(51, 65, 85, 0.75);
+  border-radius: 0.62rem;
+  background: rgba(15, 23, 42, 0.56);
+  padding: 0.5rem 0.55rem;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.45rem;
+  align-items: center;
+}
+
+.singer-queue-chip .song-title {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.25;
+  display: -webkit-box;
+  line-clamp: 1;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.singer-queue-chip .muted {
+  margin-top: 0.15rem;
+  font-size: 0.74rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.singer-queue-cancel {
+  padding: 0.42rem 0.5rem;
+  font-size: 0.75rem;
+  box-shadow: none;
 }
 
 .song-item,

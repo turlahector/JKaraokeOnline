@@ -32,4 +32,27 @@ npm run dev
   - `http://<LAN-IP>:5173/singer`
   - `http://<LAN-IP>:5173/host`
 
-Queue and current song state are saved locally to `server/data/state.json`.
+## MongoDB Atlas persistence
+
+If you want persistent cloud storage, set these backend env vars:
+
+- `MONGODB_URI` (required for persistence)
+- `MONGODB_DB_NAME` (optional, default: `jkaraoke`)
+- `MONGODB_COLLECTION_NAME` (optional, default: `rooms`)
+
+Example:
+
+```bash
+MONGODB_URI=mongodb+srv://<user>:<pass>@<cluster-url>/?retryWrites=true&w=majority
+MONGODB_DB_NAME=jkaraoke
+MONGODB_COLLECTION_NAME=rooms
+```
+
+When `MONGODB_URI` is present, the API reads/writes room state in MongoDB.
+If it is missing, room state is kept in memory only (resets on server restart).
+
+## Host account authentication
+
+- Hardcoded host credentials were removed.
+- Use the `/host` page to create a host account (`Sign Up`) and then login.
+- Host accounts are stored in MongoDB (`host_users` collection) with hashed passwords.

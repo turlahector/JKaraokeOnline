@@ -1,22 +1,23 @@
 /* global process */
+import 'dotenv/config'
+import bcrypt from 'bcryptjs'
 import cors from 'cors'
 import express from 'express'
-import { mkdir, readFile, writeFile } from 'node:fs/promises'
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { MongoClient } from 'mongodb'
 import ytsr from 'ytsr'
 
 const app = express()
 const port = Number(process.env.PORT) || 3001
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
-const dataDirectory = path.join(__dirname, 'data')
-const stateFilePath = path.join(dataDirectory, 'state.json')
-const HOST_USERNAME = 'Jay'
-const HOST_PASSWORD = '23161707'
+const MONGODB_URI = String(process.env.MONGODB_URI || '').trim()
+const MONGODB_DB_NAME = String(process.env.MONGODB_DB_NAME || 'jkaraoke').trim()
+const MONGODB_COLLECTION_NAME = String(process.env.MONGODB_COLLECTION_NAME || 'rooms').trim()
 const hostTokens = new Set()
 const hostSessions = new Map()
 const singerSessions = new Map()
+const hostTokenToUser = new Map()
+let mongoClient = null
+let mongoRoomsCollection = null
+let mongoUsersCollection = null
 
 app.use(cors())
 app.use(express.json())
@@ -57,33 +58,104 @@ const getRoomStateResponse = (accessToken) => {
   }
 }
 
-const loadStateFromDisk = async () => {
+const sanitizeRoom = (room) => ({
+  currentSong: room?.currentSong ?? null,
+  queue: Array.isArray(room?.queue) ? room.queue : [],
+})
+
+const normalizeHostUsername = (username) => String(username || '').trim().toLowerCase()
+
+const loadStateFromMongo = async () => {
+  if (!mongoRoomsCollection) return false
+
+  const docs = await mongoRoomsCollection.find({}, { projection: { _id: 0 } }).toArray()
+  state.rooms = {}
+
+  for (const doc of docs) {
+    const accessToken = String(doc?.accessToken || '').trim()
+    if (!accessToken) continue
+    state.rooms[accessToken] = sanitizeRoom(doc)
+  }
+
+  return docs.length > 0
+}
+
+const persistStateToMongo = async () => {
+  if (!mongoRoomsCollection) return false
+
+  const entries = Object.entries(state.rooms)
+  if (entries.length === 0) {
+    await mongoRoomsCollection.deleteMany({})
+    return true
+  }
+
+  await mongoRoomsCollection.bulkWrite(
+    entries.map(([accessToken, room]) => ({
+      replaceOne: {
+        filter: { accessToken },
+        replacement: {
+          accessToken,
+          ...sanitizeRoom(room),
+        },
+        upsert: true,
+      },
+    })),
+    { ordered: false },
+  )
+
+  const activeTokens = entries.map(([accessToken]) => accessToken)
+  await mongoRoomsCollection.deleteMany({ accessToken: { $nin: activeTokens } })
+  return true
+}
+
+const initializeMongoStorage = async () => {
+  if (!MONGODB_URI) {
+    console.warn('MONGODB_URI is not set. State will be in-memory only.')
+    return false
+  }
+
   try {
-    await mkdir(dataDirectory, { recursive: true })
-    const raw = await readFile(stateFilePath, 'utf8')
-    const parsed = JSON.parse(raw)
-
-    if (parsed?.rooms && typeof parsed.rooms === 'object') {
-      state.rooms = parsed.rooms
-      return
-    }
-
-    // Migration from old single-queue state format.
-    const legacyToken = parsed?.singerAccessToken || crypto.randomUUID()
-    state.rooms[legacyToken] = {
-      currentSong: parsed?.currentSong ?? null,
-      queue: Array.isArray(parsed?.queue) ? parsed.queue : [],
-    }
+    mongoClient = new MongoClient(MONGODB_URI)
+    await mongoClient.connect()
+    const db = mongoClient.db(MONGODB_DB_NAME)
+    mongoRoomsCollection = db.collection(MONGODB_COLLECTION_NAME)
+    mongoUsersCollection = db.collection('host_users')
+    await mongoRoomsCollection.createIndex({ accessToken: 1 }, { unique: true })
+    await mongoUsersCollection.createIndex({ usernameLower: 1 }, { unique: true })
+    console.log(`MongoDB connected (${MONGODB_DB_NAME}.${MONGODB_COLLECTION_NAME})`)
+    return true
   } catch (error) {
-    if (error?.code !== 'ENOENT') {
-      console.error('Failed to load saved queue state:', error)
-    }
+    console.error('MongoDB connection failed. State will be in-memory only:', error)
+    mongoClient = null
+    mongoRoomsCollection = null
+    mongoUsersCollection = null
+    return false
   }
 }
 
-const persistStateToDisk = async () => {
-  await mkdir(dataDirectory, { recursive: true })
-  await writeFile(stateFilePath, JSON.stringify(state, null, 2), 'utf8')
+const loadState = async () => {
+  const mongoEnabled = await initializeMongoStorage()
+  if (!mongoEnabled) {
+    return
+  }
+
+  try {
+    await loadStateFromMongo()
+  } catch (error) {
+    console.error('Failed to load state from MongoDB:', error)
+  }
+}
+
+const persistState = async () => {
+  if (!mongoRoomsCollection) {
+    return
+  }
+
+  try {
+    await persistStateToMongo()
+  } catch (error) {
+    console.error('Failed to persist state to MongoDB:', error)
+  }
 }
 
 const parseDurationToSeconds = (durationText) => {
@@ -209,13 +281,106 @@ app.get('/api/health', (_req, res) => {
   res.json({ ok: true })
 })
 
-app.post('/api/host/login', (req, res) => {
+app.get('/api/host/check-username', async (req, res) => {
+  if (!mongoUsersCollection) {
+    return res.status(503).json({ error: 'Username check is unavailable. MongoDB connection is required.' })
+  }
+
+  const username = String(req.query?.username || '').trim()
+  const usernameLower = normalizeHostUsername(username)
+
+  if (!usernameLower || username.length < 3) {
+    return res.status(400).json({
+      available: false,
+      message: 'Username must be at least 3 characters.',
+    })
+  }
+
+  try {
+    const existingUser = await mongoUsersCollection.findOne({ usernameLower }, { projection: { _id: 1 } })
+    if (existingUser) {
+      return res.json({
+        available: false,
+        message: 'Username already exists. Please choose another one.',
+      })
+    }
+
+    return res.json({
+      available: true,
+      message: 'Username is available.',
+    })
+  } catch (error) {
+    return res.status(500).json({
+      error: 'Failed to validate username. Please try again.',
+      details: error instanceof Error ? error.message : 'Unknown error',
+    })
+  }
+})
+
+app.post('/api/host/signup', async (req, res) => {
+  if (!mongoUsersCollection) {
+    return res.status(503).json({ error: 'Signup is unavailable. MongoDB connection is required.' })
+  }
+
+  const username = String(req.body?.username || '').trim()
+  const password = String(req.body?.password || '')
+  const usernameLower = normalizeHostUsername(username)
+
+  if (!usernameLower) {
+    return res.status(400).json({ error: 'Username is required.' })
+  }
+  if (username.length < 3) {
+    return res.status(400).json({ error: 'Username must be at least 3 characters.' })
+  }
+  if (password.length < 6) {
+    return res.status(400).json({ error: 'Password must be at least 6 characters.' })
+  }
+
+  try {
+    const existingUser = await mongoUsersCollection.findOne({ usernameLower }, { projection: { _id: 1 } })
+    if (existingUser) {
+      return res.status(409).json({ error: 'Username already exists. Please choose another one.' })
+    }
+
+    const passwordHash = await bcrypt.hash(password, 12)
+    await mongoUsersCollection.insertOne({
+      username,
+      usernameLower,
+      passwordHash,
+      createdAt: new Date().toISOString(),
+    })
+
+    return res.status(201).json({ ok: true, message: 'Host account created. You can now login.' })
+  } catch (error) {
+    if (error?.code === 11000) {
+      return res.status(409).json({ error: 'Username already exists. Please choose another one.' })
+    }
+
+    return res.status(500).json({
+      error: 'Failed to create account. Please try again.',
+      details: error instanceof Error ? error.message : 'Unknown error',
+    })
+  }
+})
+
+app.post('/api/host/login', async (req, res) => {
   const username = String(req.body?.username || '').trim()
   const password = String(req.body?.password || '')
   const requestedSingerAccessToken = String(req.body?.singerAccessToken || '').trim()
   const reuseSingerAccessToken = req.body?.reuseSingerAccessToken !== false
+  const usernameLower = normalizeHostUsername(username)
 
-  if (username !== HOST_USERNAME || password !== HOST_PASSWORD) {
+  if (!usernameLower || !password) {
+    return res.status(400).json({ error: 'Username and password are required.' })
+  }
+
+  if (!mongoUsersCollection) {
+    return res.status(503).json({ error: 'Login is unavailable. MongoDB connection is required.' })
+  }
+
+  const user = await mongoUsersCollection.findOne({ usernameLower })
+  const isPasswordValid = user?.passwordHash ? await bcrypt.compare(password, user.passwordHash) : false
+  if (!user || !isPasswordValid) {
     return res.status(401).json({ error: 'Invalid username or password.' })
   }
 
@@ -223,8 +388,10 @@ app.post('/api/host/login', (req, res) => {
   const singerAccessToken =
     reuseSingerAccessToken && requestedSingerAccessToken ? requestedSingerAccessToken : crypto.randomUUID()
   hostTokens.add(token)
+  hostTokenToUser.set(token, user.username)
   hostSessions.set(token, singerAccessToken)
   getRoomByToken(singerAccessToken)
+  await persistState()
   return res.json({ token, singerAccessToken })
 })
 
@@ -242,6 +409,7 @@ app.post('/api/host/logout', (req, res) => {
   if (token) {
     hostTokens.delete(token)
     hostSessions.delete(token)
+    hostTokenToUser.delete(token)
   }
 
   return res.status(204).send()
@@ -251,13 +419,18 @@ app.post('/api/host/token/rotate', requireHostAuth, (req, res) => {
   const oldToken = getHostTokenFromRequest(req)
   const newToken = crypto.randomUUID()
   const singerAccessToken = getSingerAccessTokenForHost(oldToken)
+  const existingUsername = hostTokenToUser.get(oldToken)
 
   if (oldToken) {
     hostTokens.delete(oldToken)
     hostSessions.delete(oldToken)
+    hostTokenToUser.delete(oldToken)
   }
 
   hostTokens.add(newToken)
+  if (existingUsername) {
+    hostTokenToUser.set(newToken, existingUsername)
+  }
   if (singerAccessToken) {
     hostSessions.set(newToken, singerAccessToken)
   }
@@ -280,7 +453,7 @@ app.post('/api/singer/access-token/rotate', requireHostAuth, async (req, res) =>
   const singerAccessToken = crypto.randomUUID()
   hostSessions.set(hostToken, singerAccessToken)
   getRoomByToken(singerAccessToken)
-  await persistStateToDisk()
+  await persistState()
   return res.json({ singerAccessToken })
 })
 
@@ -419,7 +592,7 @@ app.post('/api/reservations', async (req, res) => {
 
   const room = getRoomByToken(accessToken)
   room.queue.push(reservation)
-  await persistStateToDisk()
+  await persistState()
   return res.status(201).json({ reservation, state: getRoomStateResponse(accessToken) })
 })
 
@@ -432,13 +605,13 @@ app.post('/api/current/next', requireHostAuth, async (req, res) => {
     if (room) {
       room.currentSong = null
     }
-    await persistStateToDisk()
+    await persistState()
     return res.status(200).json(getRoomStateResponse(accessToken))
   }
 
   const nextReservation = room.queue.shift()
   room.currentSong = nextReservation
-  await persistStateToDisk()
+  await persistState()
   return res.json(getRoomStateResponse(accessToken))
 })
 
@@ -449,7 +622,7 @@ app.post('/api/current/clear', requireHostAuth, async (req, res) => {
   if (room) {
     room.currentSong = null
   }
-  await persistStateToDisk()
+  await persistState()
   return res.json(getRoomStateResponse(accessToken))
 })
 
@@ -475,7 +648,7 @@ app.delete('/api/reservations/:id', async (req, res) => {
 
   room.queue = room.queue.filter((item) => item.id !== id)
 
-  await persistStateToDisk()
+  await persistState()
   return res.status(204).send()
 })
 
@@ -508,11 +681,11 @@ app.post('/api/reservations/:id/move', requireHostAuth, async (req, res) => {
   room.queue[targetIndex] = room.queue[currentIndex]
   room.queue[currentIndex] = temp
 
-  await persistStateToDisk()
+  await persistState()
   return res.json(getRoomStateResponse(accessToken))
 })
 
-loadStateFromDisk()
+loadState()
   .finally(() => {
     app.listen(port, () => {
       console.log(`Videoke API server listening on http://localhost:${port}`)
