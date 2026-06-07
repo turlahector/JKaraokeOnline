@@ -771,14 +771,14 @@ button.danger:hover {
 .player-card:fullscreen .reservation-strip-section,
 .player-card:-webkit-full-screen .reservation-strip-section {
   position: absolute;
-  top: 3.7rem;
+  top: 0.65rem;
   left: 0.8rem;
   right: 0.8rem;
-  z-index: 6;
+  z-index: 12;
   margin: 0;
   border: 1px solid rgba(51, 65, 85, 0.85);
   border-radius: 0.7rem;
-  padding: 0.55rem 0.6rem;
+  padding: 0.2rem 0.4rem;
   background: rgba(2, 6, 23, 0.75);
   backdrop-filter: blur(4px);
 }
@@ -798,14 +798,14 @@ button.danger:hover {
 
 .player-card-mobile-fullscreen .reservation-strip-section {
   position: absolute;
-  top: calc(max(0.8rem, env(safe-area-inset-top)) + 2.9rem);
+  top: calc(max(0.55rem, env(safe-area-inset-top)) + 0.08rem);
   left: max(0.8rem, env(safe-area-inset-left));
   right: max(0.8rem, env(safe-area-inset-right));
-  z-index: 6;
+  z-index: 12;
   margin: 0;
   border: 1px solid rgba(51, 65, 85, 0.85);
   border-radius: 0.7rem;
-  padding: 0.55rem 0.6rem;
+  padding: 0.2rem 0.36rem;
   background: rgba(2, 6, 23, 0.75);
   backdrop-filter: blur(4px);
 }
@@ -813,12 +813,12 @@ button.danger:hover {
 .player-card:fullscreen .reservation-strip-header,
 .player-card:-webkit-full-screen .reservation-strip-header {
   position: relative;
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.12rem;
 }
 
 .player-card-mobile-fullscreen .reservation-strip-header {
   position: relative;
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.1rem;
 }
 
 .player-card:fullscreen .reservation-strip-header .fullscreen-qr-wrapper,
@@ -838,35 +838,41 @@ button.danger:hover {
 
 .player-card:fullscreen .reservation-strip-header .queue-title,
 .player-card:-webkit-full-screen .reservation-strip-header .queue-title {
-  padding-right: 6.2rem;
+  padding-right: 5.8rem;
 }
 
 .player-card-mobile-fullscreen .reservation-strip-header .queue-title {
-  padding-right: 6.2rem;
+  padding-right: 5.4rem;
 }
 
 .player-card:fullscreen .reservation-strip,
 .player-card:-webkit-full-screen .reservation-strip {
-  padding: 0.1rem 0 0.2rem;
-  padding-right: 6.6rem;
+  padding: 0;
+  gap: 0.2rem;
+  padding-right: 6.2rem;
 }
 
 .player-card-mobile-fullscreen .reservation-strip {
-  padding: 0.1rem 0 0.2rem;
-  padding-right: 5.2rem;
+  padding: 0;
+  gap: 0.18rem;
+  padding-right: 5.3rem;
 }
 
 .player-card:fullscreen .reservation-card,
 .player-card:-webkit-full-screen .reservation-card {
-  min-width: 170px;
-  max-width: 210px;
-  padding: 0.48rem 0.58rem;
+  min-width: 132px;
+  max-width: 176px;
+  min-height: 30px;
+  padding: 0.14rem 0.34rem;
+  border-radius: 0.55rem;
 }
 
 .player-card-mobile-fullscreen .reservation-card {
-  min-width: 170px;
-  max-width: 210px;
-  padding: 0.48rem 0.58rem;
+  min-width: 124px;
+  max-width: 166px;
+  min-height: 30px;
+  padding: 0.12rem 0.3rem;
+  border-radius: 0.52rem;
 }
 
 .player-card:fullscreen .strip-hint,
@@ -884,17 +890,65 @@ button.danger:hover {
   padding-right: 0.15rem;
 }
 
+.player-card:fullscreen .reservation-song,
+.player-card:-webkit-full-screen .reservation-song,
+.player-card-mobile-fullscreen .reservation-song {
+  margin: 0;
+  font-size: 0.68rem;
+  line-height: 1.1;
+}
+
+.player-card:fullscreen .reservation-requester,
+.player-card:-webkit-full-screen .reservation-requester,
+.player-card-mobile-fullscreen .reservation-requester {
+  display: none;
+}
+
+.player-card:fullscreen .queue-title,
+.player-card:-webkit-full-screen .queue-title,
+.player-card-mobile-fullscreen .queue-title {
+  font-size: 0.74rem;
+  line-height: 1;
+}
+
+.player-card:fullscreen .queue-count-badge,
+.player-card:-webkit-full-screen .queue-count-badge,
+.player-card-mobile-fullscreen .queue-count-badge {
+  margin-left: 0.28rem;
+  padding: 0.06rem 0.22rem;
+  font-size: 0.6rem;
+}
+
+.player-card:fullscreen .now-playing-header h2,
+.player-card:-webkit-full-screen .now-playing-header h2,
+.player-card-mobile-fullscreen .now-playing-header h2 {
+  display: none;
+}
+
+.player-card:fullscreen .now-playing-header,
+.player-card:-webkit-full-screen .now-playing-header,
+.player-card-mobile-fullscreen .now-playing-header {
+  position: absolute;
+  top: 0.45rem;
+  right: 0.8rem;
+  z-index: 14;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+
 .player-card:fullscreen .now-playing-meta,
 .player-card:-webkit-full-screen .now-playing-meta {
   position: absolute;
   left: 0.8rem;
   right: 0.8rem;
-  bottom: 0.9rem;
-  z-index: 5;
+  bottom: 10px;
+  z-index: 13;
   margin: 0;
   border: 1px solid rgba(51, 65, 85, 0.7);
   border-radius: 0.7rem;
-  padding: 0.5rem 0.65rem;
+  padding: 0.35rem 0.5rem;
   background: rgba(2, 6, 23, 0.72);
   backdrop-filter: blur(4px);
 }
@@ -903,12 +957,12 @@ button.danger:hover {
   position: absolute;
   left: max(0.8rem, env(safe-area-inset-left));
   right: max(0.8rem, env(safe-area-inset-right));
-  bottom: max(0.8rem, env(safe-area-inset-bottom));
-  z-index: 5;
+  bottom: calc(10px + env(safe-area-inset-bottom));
+  z-index: 13;
   margin: 0;
   border: 1px solid rgba(51, 65, 85, 0.7);
   border-radius: 0.7rem;
-  padding: 0.5rem 0.65rem;
+  padding: 0.32rem 0.45rem;
   background: rgba(2, 6, 23, 0.72);
   backdrop-filter: blur(4px);
 }
@@ -937,19 +991,169 @@ button.danger:hover {
 
 .player-card:fullscreen .player-wrapper,
 .player-card:-webkit-full-screen .player-wrapper {
-  flex: 1 1 auto;
-  min-height: 0;
+  position: absolute;
+  left: 0.8rem;
+  right: 0.8rem;
+  top: 3.35rem;
+  bottom: 58px;
+  width: auto;
   height: auto;
   padding-top: 0;
-  margin-top: 9.4rem;
+  margin-top: 0;
+  min-height: 0;
+  flex: 0 0 auto;
 }
 
 .player-card-mobile-fullscreen .player-wrapper {
-  flex: 1 1 auto;
-  min-height: 0;
+  position: absolute;
+  left: max(0.8rem, env(safe-area-inset-left));
+  right: max(0.8rem, env(safe-area-inset-right));
+  top: calc(max(0.55rem, env(safe-area-inset-top)) + 2.75rem);
+  bottom: calc(58px + env(safe-area-inset-bottom));
+  width: auto;
   height: auto;
   padding-top: 0;
-  margin-top: 8.8rem;
+  margin-top: 0;
+  min-height: 0;
+  flex: 0 0 auto;
+}
+
+/* Strict fullscreen dimensions requested by user */
+.player-card:fullscreen .reservation-strip-section,
+.player-card:-webkit-full-screen .reservation-strip-section,
+.player-card-mobile-fullscreen .reservation-strip-section {
+  top: max(8px, env(safe-area-inset-top)) !important;
+  height: 30px !important;
+  min-height: 30px !important;
+  max-height: 30px !important;
+  padding: 0 8px !important;
+  border-radius: 8px !important;
+  overflow: visible !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.player-card:fullscreen .strip-hint,
+.player-card:-webkit-full-screen .strip-hint,
+.player-card-mobile-fullscreen .strip-hint,
+.player-card:fullscreen .queue-count-badge,
+.player-card:-webkit-full-screen .queue-count-badge,
+.player-card-mobile-fullscreen .queue-count-badge,
+.player-card:fullscreen .reservation-requester,
+.player-card:-webkit-full-screen .reservation-requester,
+.player-card-mobile-fullscreen .reservation-requester {
+  display: none !important;
+}
+
+.player-card:fullscreen .reservation-strip-header,
+.player-card:-webkit-full-screen .reservation-strip-header,
+.player-card-mobile-fullscreen .reservation-strip-header {
+  position: absolute !important;
+  top: 0 !important;
+  right: 0 !important;
+  margin: 0 !important;
+  width: 100%;
+  height: 0;
+  pointer-events: none;
+}
+
+.player-card:fullscreen .reservation-strip-header .queue-title,
+.player-card:-webkit-full-screen .reservation-strip-header .queue-title,
+.player-card-mobile-fullscreen .reservation-strip-header .queue-title {
+  display: none !important;
+}
+
+.player-card:fullscreen .fullscreen-qr-wrapper,
+.player-card:-webkit-full-screen .fullscreen-qr-wrapper,
+.player-card-mobile-fullscreen .fullscreen-qr-wrapper {
+  display: grid !important;
+  position: absolute !important;
+  top: 36px !important;
+  right: 0 !important;
+  z-index: 16 !important;
+  padding: 2px !important;
+  border-radius: 8px !important;
+  border: 1px solid rgba(148, 163, 184, 0.55) !important;
+  background: rgba(2, 6, 23, 0.88) !important;
+  pointer-events: auto;
+}
+
+.player-card:fullscreen .fullscreen-qr-wrapper svg,
+.player-card:-webkit-full-screen .fullscreen-qr-wrapper svg {
+  width: 70px !important;
+  height: 70px !important;
+}
+
+.player-card-mobile-fullscreen .fullscreen-qr-wrapper svg {
+  width: 64px !important;
+  height: 64px !important;
+}
+
+.player-card:fullscreen .reservation-strip,
+.player-card:-webkit-full-screen .reservation-strip,
+.player-card-mobile-fullscreen .reservation-strip {
+  width: 100% !important;
+  height: 100% !important;
+  padding: 0 !important;
+  padding-right: 76px !important;
+  gap: 0.2rem !important;
+  align-items: center !important;
+}
+
+.player-card:fullscreen .reservation-card,
+.player-card:-webkit-full-screen .reservation-card,
+.player-card-mobile-fullscreen .reservation-card {
+  min-height: 22px !important;
+  max-height: 22px !important;
+  min-width: 118px !important;
+  max-width: 180px !important;
+  padding: 1px 6px !important;
+  border-radius: 6px !important;
+}
+
+.player-card:fullscreen .reservation-song,
+.player-card:-webkit-full-screen .reservation-song,
+.player-card-mobile-fullscreen .reservation-song {
+  font-size: 0.66rem !important;
+  line-height: 1 !important;
+  margin: 0 !important;
+}
+
+.player-card:fullscreen .player-wrapper,
+.player-card:-webkit-full-screen .player-wrapper {
+  top: 44px !important;
+  bottom: 34px !important;
+}
+
+.player-card-mobile-fullscreen .player-wrapper {
+  top: calc(max(8px, env(safe-area-inset-top)) + 36px) !important;
+  bottom: calc(34px + env(safe-area-inset-bottom)) !important;
+}
+
+.player-card:fullscreen .now-playing-meta,
+.player-card:-webkit-full-screen .now-playing-meta,
+.player-card-mobile-fullscreen .now-playing-meta {
+  bottom: calc(10px + env(safe-area-inset-bottom)) !important;
+  min-height: 10px !important;
+  padding: 2px 6px !important;
+  border-radius: 6px !important;
+}
+
+.player-card:fullscreen .now-playing-meta .muted,
+.player-card:-webkit-full-screen .now-playing-meta .muted,
+.player-card-mobile-fullscreen .now-playing-meta .muted {
+  display: none !important;
+}
+
+.player-card:fullscreen .now-playing-meta .song-title,
+.player-card:-webkit-full-screen .now-playing-meta .song-title,
+.player-card-mobile-fullscreen .now-playing-meta .song-title {
+  margin: 0 !important;
+  font-size: 0.68rem !important;
+  line-height: 1 !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .player-wrapper {

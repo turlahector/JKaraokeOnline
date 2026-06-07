@@ -298,21 +298,29 @@ function PhoneView({
                     {(() => {
                       const isReservingThis = reservingVideoId === item.videoId
                       const isAlreadyReserved = reservedSongVideoIds.has(item.videoId)
-                      const isDisabled = isReservingThis || isAlreadyReserved
+                      const isLikelyBlocked = item.embeddableStatus === 'likely_blocked'
+                      const isDisabled = isReservingThis || isAlreadyReserved || isLikelyBlocked
 
                       return (
-                        <button type="button" disabled={isDisabled} onClick={() => onReserveSong(item)}>
-                          {isReservingThis ? (
-                            <span className="loading-button-content">
-                              <span className="button-spinner" aria-hidden="true" />
-                              Reserving...
-                            </span>
-                          ) : isAlreadyReserved ? (
-                            'Reserved'
-                          ) : (
-                            'Reserve'
-                          )}
-                        </button>
+                        <>
+                          <button type="button" disabled={isDisabled} onClick={() => onReserveSong(item)}>
+                            {isReservingThis ? (
+                              <span className="loading-button-content">
+                                <span className="button-spinner" aria-hidden="true" />
+                                Reserving...
+                              </span>
+                            ) : isAlreadyReserved ? (
+                              'Reserved'
+                            ) : isLikelyBlocked ? (
+                              'Blocked'
+                            ) : (
+                              'Reserve'
+                            )}
+                          </button>
+                          {isLikelyBlocked ? (
+                            <p className="muted">Blocked by YouTube embed policy</p>
+                          ) : null}
+                        </>
                       )
                     })()}
                   </li>

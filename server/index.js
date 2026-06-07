@@ -93,6 +93,10 @@ const parseDurationToSeconds = (durationText) => {
   return parts.reduce((total, part) => total * 60 + part, 0)
 }
 
+const EMBED_CHECK_TIMEOUT_MS = 2500
+const SEARCH_CANDIDATE_LIMIT = 18
+const SEARCH_RESULT_LIMIT = 10
+
 const buildKaraokeSearchQuery = (rawQuery) => {
   const trimmed = String(rawQuery || '').trim()
   if (!trimmed) return ''
@@ -103,6 +107,38 @@ const buildKaraokeSearchQuery = (rawQuery) => {
   }
 
   return `${trimmed} karaoke`
+}
+
+const mapVideoSearchResult = (video) => ({
+  videoId: video.id,
+  title: video.title,
+  channel: video.author?.name || 'Unknown channel',
+  duration: video.duration || 'N/A',
+  durationSeconds: parseDurationToSeconds(video.duration),
+  thumbnail: video.bestThumbnail?.url || '',
+  url: `https://www.youtube.com/watch?v=${video.id}`,
+})
+
+const checkVideoEmbeddable = async (videoId) => {
+  if (!videoId) return 'unknown'
+
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), EMBED_CHECK_TIMEOUT_MS)
+
+  try {
+    const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(
+      `https://www.youtube.com/watch?v=${videoId}`,
+    )}&format=json`
+    const response = await fetch(oembedUrl, {
+      method: 'GET',
+      signal: controller.signal,
+    })
+    return response.ok ? 'likely_embeddable' : 'likely_blocked'
+  } catch {
+    return 'unknown'
+  } finally {
+    clearTimeout(timeoutId)
+  }
 }
 
 const isValidHostToken = (token) => Boolean(token && hostTokens.has(token))
@@ -232,20 +268,38 @@ app.get('/api/search', async (req, res) => {
   try {
     const karaokeQuery = buildKaraokeSearchQuery(q)
     const results = await ytsr(karaokeQuery, { limit: 20 })
-    const videos = results.items
+    const candidates = results.items
       .filter((item) => item.type === 'video')
-      .slice(0, 10)
-      .map((video) => ({
-        videoId: video.id,
-        title: video.title,
-        channel: video.author?.name || 'Unknown channel',
-        duration: video.duration || 'N/A',
-        durationSeconds: parseDurationToSeconds(video.duration),
-        thumbnail: video.bestThumbnail?.url || '',
-        url: `https://www.youtube.com/watch?v=${video.id}`,
-      }))
+      .slice(0, SEARCH_CANDIDATE_LIMIT)
 
-    return res.json({ items: videos })
+    const prechecked = await Promise.all(
+      candidates.map(async (video) => {
+        const embeddableStatus = await checkVideoEmbeddable(video.id)
+        return {
+          ...mapVideoSearchResult(video),
+          embeddableStatus,
+          isLikelyEmbeddable: embeddableStatus === 'likely_embeddable',
+        }
+      }),
+    )
+
+    const priority = {
+      likely_embeddable: 0,
+      unknown: 1,
+      likely_blocked: 2,
+    }
+
+    const sortedVideos = prechecked.sort(
+      (a, b) => priority[a.embeddableStatus] - priority[b.embeddableStatus],
+    )
+
+    const filteredVideos = sortedVideos.filter((video) => video.embeddableStatus !== 'likely_blocked')
+    const selectedVideos = (filteredVideos.length > 0 ? filteredVideos : sortedVideos).slice(
+      0,
+      SEARCH_RESULT_LIMIT,
+    )
+
+    return res.json({ items: selectedVideos })
   } catch (error) {
     return res.status(500).json({
       error: 'Failed to search YouTube. Please try again.',
@@ -287,6 +341,15 @@ app.post('/api/reservations', async (req, res) => {
     return res.status(400).json({ error: 'Song is invalid.' })
   }
 
+  const embeddableStatus = await checkVideoEmbeddable(song.videoId)
+  if (embeddableStatus === 'likely_blocked') {
+    return res.status(422).json({
+      error: 'This song is likely blocked for embedded playback. Please choose another video.',
+      code: 'VIDEO_NOT_EMBEDDABLE',
+      embeddableStatus,
+    })
+  }
+
   const reservation = {
     id: crypto.randomUUID(),
     singerName,
@@ -300,6 +363,7 @@ app.post('/api/reservations', async (req, res) => {
       durationSeconds: Number(song.durationSeconds) || 0,
       thumbnail: song.thumbnail || '',
       url: `https://www.youtube.com/watch?v=${song.videoId}`,
+      embeddableStatus,
     },
     createdAt: new Date().toISOString(),
   }
