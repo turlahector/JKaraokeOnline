@@ -689,6 +689,7 @@ function ScreenLoginView({
   usernameInput,
   emailInput,
   passwordInput,
+  confirmPasswordInput,
   reuseSingerUrlOnLogin,
   isLoggingIn,
   isCheckingUsername,
@@ -702,6 +703,7 @@ function ScreenLoginView({
   onEmailInputChange,
   onEmailInputBlur,
   onPasswordInputChange,
+  onConfirmPasswordInputChange,
   onAuthModeChange,
   onReuseSingerUrlOnLoginChange,
   onSubmit,
@@ -794,6 +796,17 @@ function ScreenLoginView({
               onChange={(event) => onPasswordInputChange(event.target.value)}
               placeholder={isResetMode ? 'New password' : 'Password'}
               autoComplete={isSignupMode || isResetMode ? 'new-password' : 'current-password'}
+              disabled={isLoggingIn}
+              required
+            />
+          ) : null}
+          {isSignupMode ? (
+            <input
+              type="password"
+              value={confirmPasswordInput}
+              onChange={(event) => onConfirmPasswordInputChange(event.target.value)}
+              placeholder="Confirm password"
+              autoComplete="new-password"
               disabled={isLoggingIn}
               required
             />
@@ -935,6 +948,7 @@ function App() {
   const [hostUsername, setHostUsername] = useState('')
   const [emailInput, setEmailInput] = useState('')
   const [passwordInput, setPasswordInput] = useState('')
+  const [confirmPasswordInput, setConfirmPasswordInput] = useState('')
   const [isCheckingUsername, setIsCheckingUsername] = useState(false)
   const [isCheckingEmail, setIsCheckingEmail] = useState(false)
   const [usernameValidationMessage, setUsernameValidationMessage] = useState('')
@@ -1438,6 +1452,10 @@ function App() {
     setIsLoggingIn(true)
 
     try {
+      if (passwordInput !== confirmPasswordInput) {
+        throw new Error('Password and confirm password do not match.')
+      }
+
       const usernameCheck = await checkSignupUsernameAvailability(usernameInput)
       if (!usernameCheck.available) {
         throw new Error('Username already exists. Please choose another one.')
@@ -1463,6 +1481,7 @@ function App() {
 
       setHostAuthMode('login')
       setPasswordInput('')
+      setConfirmPasswordInput('')
       setEmailInput('')
       setIsUsernameAvailable(null)
       setIsEmailAvailable(null)
@@ -1649,6 +1668,7 @@ function App() {
     if (nextMode !== 'reset') {
       setPasswordInput('')
     }
+    setConfirmPasswordInput('')
   }
 
   const handleHostLogout = async () => {
@@ -1718,6 +1738,7 @@ function App() {
             usernameInput={usernameInput}
             emailInput={emailInput}
             passwordInput={passwordInput}
+            confirmPasswordInput={confirmPasswordInput}
             reuseSingerUrlOnLogin={reuseSingerUrlOnLogin}
             isLoggingIn={isLoggingIn}
             isCheckingUsername={isCheckingUsername}
@@ -1731,6 +1752,7 @@ function App() {
             onEmailInputChange={handleEmailInputChange}
             onEmailInputBlur={handleEmailInputBlur}
             onPasswordInputChange={setPasswordInput}
+            onConfirmPasswordInputChange={setConfirmPasswordInput}
             onAuthModeChange={handleHostAuthModeChange}
             onReuseSingerUrlOnLoginChange={setReuseSingerUrlOnLogin}
             onSubmit={
