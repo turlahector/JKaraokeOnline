@@ -5,6 +5,10 @@
       "dest": "https://jkaraokeonline.onrender.com/api/$1"
     },
     {
+      "src": "/elli-game",
+      "dest": "/elli-game.html"
+    },
+    {
       "handle": "filesystem"
     },
     {

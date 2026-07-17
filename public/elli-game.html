@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<title>Elli's Counting Adventure</title>
+<style>
+  :root {
+    --pink: #ff5fa2;
+    --purple: #9b5de5;
+    --blue: #00bbf9;
+    --green: #00d68f;
+    --yellow: #ffd60a;
+    --orange: #ff8c42;
+    --red: #ff595e;
+    --sky1: #b9f6ff;
+    --sky2: #ffe6f7;
+    --ink: #3a2c5a;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+    font-family: "Comic Sans MS", "Chalkboard SE", "Baloo", system-ui, -apple-system, sans-serif;
+    color: var(--ink);
+    -webkit-user-select: none;
+    user-select: none;
+    touch-action: manipulation;
+  }
+
+  body {
+    background: linear-gradient(160deg, var(--sky1), var(--sky2));
+    background-attachment: fixed;
+  }
+
+  #app {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  .screen {
+    position: absolute;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: clamp(12px, 3vh, 30px);
+    animation: fadeIn 0.4s ease;
+  }
+  .screen.active { display: flex; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.98); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+
+  /* ---------- Top bar ---------- */
+  .topbar {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: clamp(6px, 2vh, 16px);
+  }
+
+  .iconbtn {
+    border: none;
+    background: #ffffffcc;
+    color: var(--ink);
+    font-size: clamp(22px, 4.5vw, 34px);
+    width: clamp(52px, 11vw, 72px);
+    height: clamp(52px, 11vw, 72px);
+    border-radius: 999px;
+    box-shadow: 0 6px 0 #00000022, 0 6px 14px #00000022;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.08s ease;
+  }
+  .iconbtn:active { transform: translateY(4px) scale(0.96); box-shadow: 0 2px 0 #00000022; }
+
+  .star-shelf {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    font-size: clamp(22px, 5vw, 36px);
+    min-height: 1em;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .star-shelf .count {
+    font-size: clamp(20px, 4.5vw, 32px);
+    font-weight: 900;
+    color: var(--purple);
+    margin-left: 6px;
+  }
+
+  /* ---------- Home ---------- */
+  .title {
+    font-size: clamp(34px, 9vw, 76px);
+    font-weight: 900;
+    text-align: center;
+    line-height: 1.05;
+    margin: clamp(4px, 1vh, 10px) 0;
+    background: linear-gradient(90deg, var(--pink), var(--purple), var(--blue), var(--green));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0 3px 0 #ffffff88;
+  }
+  .mascot {
+    font-size: clamp(64px, 20vw, 150px);
+    animation: bob 2.2s ease-in-out infinite;
+    filter: drop-shadow(0 10px 10px #00000022);
+  }
+  @keyframes bob {
+    0%,100% { transform: translateY(0) rotate(-3deg); }
+    50%     { transform: translateY(-14px) rotate(3deg); }
+  }
+  .subtitle {
+    font-size: clamp(18px, 4.5vw, 30px);
+    font-weight: 700;
+    opacity: 0.8;
+    margin-bottom: clamp(8px, 2vh, 18px);
+    text-align: center;
+  }
+
+  .count-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: clamp(12px, 3vw, 26px);
+    width: min(92vw, 640px);
+  }
+  .count-btn {
+    border: none;
+    border-radius: 28px;
+    color: #fff;
+    font-family: inherit;
+    font-weight: 900;
+    padding: clamp(14px, 3.2vh, 28px) 10px;
+    cursor: pointer;
+    box-shadow: 0 10px 0 #00000033, 0 12px 22px #00000022;
+    transition: transform 0.09s ease, box-shadow 0.09s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    line-height: 1;
+  }
+  .count-btn:active { transform: translateY(7px); box-shadow: 0 3px 0 #00000033; }
+  .count-btn .big { font-size: clamp(46px, 12vw, 88px); }
+  .count-btn .lbl { font-size: clamp(15px, 3.6vw, 24px); opacity: 0.95; }
+  .count-btn.c2  { background: linear-gradient(150deg, #ff8fb3, var(--pink)); }
+  .count-btn.c3  { background: linear-gradient(150deg, #b18bff, var(--purple)); }
+  .count-btn.c5  { background: linear-gradient(150deg, #5fd0ff, var(--blue)); }
+  .count-btn.c10 { background: linear-gradient(150deg, #52e6b0, var(--green)); }
+
+  .maxrow {
+    margin-top: clamp(12px, 3vh, 26px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .maxrow .lbl { font-size: clamp(16px, 4vw, 24px); font-weight: 800; opacity: 0.8; }
+  .chip-row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+  .chip {
+    border: none;
+    background: #ffffffcc;
+    color: var(--ink);
+    font-family: inherit;
+    font-weight: 900;
+    font-size: clamp(18px, 4.4vw, 26px);
+    padding: 10px 22px;
+    border-radius: 999px;
+    cursor: pointer;
+    box-shadow: 0 5px 0 #00000022;
+    transition: transform 0.08s ease;
+  }
+  .chip:active { transform: translateY(3px); }
+  .chip.selected { background: var(--yellow); color: var(--ink); box-shadow: 0 5px 0 #00000033, 0 0 0 4px #ffffffaa inset; }
+
+  /* ---------- Play ---------- */
+  .play-header {
+    text-align: center;
+    font-size: clamp(18px, 4.6vw, 30px);
+    font-weight: 800;
+    margin-bottom: clamp(6px, 1.5vh, 14px);
+    min-height: 1.2em;
+  }
+  .play-header b { color: var(--purple); }
+
+  .total-badge {
+    font-size: clamp(52px, 15vw, 130px);
+    font-weight: 900;
+    color: var(--purple);
+    text-shadow: 0 4px 0 #fff, 0 8px 14px #00000022;
+    line-height: 1;
+    margin: clamp(2px, 1vh, 8px) 0;
+  }
+  .total-badge.pop { animation: pop 0.42s cubic-bezier(.2,1.6,.4,1); }
+  @keyframes pop {
+    0% { transform: scale(0.5); }
+    60% { transform: scale(1.35); }
+    100% { transform: scale(1); }
+  }
+
+  .stage {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  /* Grouped counting */
+  .groups {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: center;
+    gap: clamp(10px, 2.5vw, 22px);
+    width: 100%;
+    max-height: 100%;
+    padding: 6px;
+    overflow: auto;
+  }
+  .group {
+    background: #ffffffbb;
+    border-radius: 24px;
+    padding: clamp(8px, 2vw, 16px);
+    display: grid;
+    gap: 2px;
+    cursor: pointer;
+    box-shadow: 0 6px 0 #00000018;
+    transition: transform 0.1s ease, box-shadow 0.1s ease, opacity 0.2s ease;
+    position: relative;
+  }
+  .group:active { transform: scale(0.94); }
+  .group.done {
+    background: #d6ffe9;
+    box-shadow: 0 6px 0 #00d68f55, 0 0 0 4px #00d68f66 inset;
+    transform: scale(1.02);
+  }
+  .group.done::after {
+    content: "✓";
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background: var(--green);
+    color: #fff;
+    width: 34px;
+    height: 34px;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: 900;
+    box-shadow: 0 3px 6px #00000033;
+    animation: pop 0.35s ease;
+  }
+  .group.hint { animation: wobble 0.6s ease infinite; box-shadow: 0 6px 0 #ffd60088, 0 0 0 4px #ffd60099 inset; }
+  @keyframes wobble {
+    0%,100% { transform: rotate(-2deg); }
+    50% { transform: rotate(2deg); }
+  }
+  .group .row { display: flex; gap: 2px; justify-content: center; }
+  .group .item { font-size: clamp(26px, 7vw, 52px); line-height: 1; }
+
+  /* Number line */
+  .numline-wrap {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: clamp(10px, 3vh, 26px);
+  }
+  .track {
+    position: relative;
+    width: 100%;
+    height: clamp(90px, 16vh, 150px);
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+  .track::-webkit-scrollbar { height: 8px; }
+  .track::-webkit-scrollbar-thumb { background: #9b5de555; border-radius: 999px; }
+  .track-inner {
+    position: relative;
+    height: 100%;
+    min-width: 100%;
+    width: max-content;
+    margin: 0 auto;
+  }
+  .track-line {
+    position: absolute;
+    left: 0; right: 0;
+    bottom: 26px;
+    height: 10px;
+    border-radius: 999px;
+    background: repeating-linear-gradient(90deg, #ffffffcc 0 18px, #ffd60099 18px 36px);
+    box-shadow: 0 3px 0 #00000012;
+  }
+  .stops {
+    height: 100%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .stop {
+    flex: 0 0 var(--stop-w, clamp(58px, 13vw, 88px));
+    width: var(--stop-w, clamp(58px, 13vw, 88px));
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .stop .dot {
+    width: clamp(44px, 9vw, 66px);
+    height: clamp(44px, 9vw, 66px);
+    border-radius: 999px;
+    background: #ffffffcc;
+    border: 4px solid #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(18px, 4.6vw, 30px);
+    font-weight: 900;
+    color: var(--ink);
+    box-shadow: 0 5px 0 #00000018;
+    transition: transform 0.12s ease;
+  }
+  .stop.reached .dot { background: var(--green); color: #fff; }
+  .stop.current .dot {
+    background: var(--yellow);
+    color: var(--ink);
+    animation: glow 1s ease-in-out infinite;
+    cursor: pointer;
+  }
+  @keyframes glow {
+    0%,100% { transform: scale(1); box-shadow: 0 5px 0 #00000018, 0 0 0 0 #ffd60077; }
+    50% { transform: scale(1.15); box-shadow: 0 5px 0 #00000018, 0 0 0 16px #ffd60000; }
+  }
+  .stop.wrong .dot { animation: shake 0.4s ease; }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    25% { transform: translateX(-8px) rotate(-6deg); }
+    75% { transform: translateX(8px) rotate(6deg); }
+  }
+  .hopper {
+    position: absolute;
+    bottom: calc(26px + clamp(44px, 9vw, 66px) * 0.15);
+    font-size: clamp(34px, 8vw, 60px);
+    transition: left 0.5s cubic-bezier(.3,1.4,.5,1);
+    transform: translateX(-50%);
+    filter: drop-shadow(0 6px 6px #00000022);
+    pointer-events: none;
+  }
+  .hopper.hop { animation: hop 0.5s ease; }
+  @keyframes hop {
+    0% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(-40px); }
+    100% { transform: translateX(-50%) translateY(0); }
+  }
+
+  .prompt {
+    text-align: center;
+    font-size: clamp(18px, 4.8vw, 30px);
+    font-weight: 800;
+    opacity: 0.85;
+  }
+  .prompt b { color: var(--pink); }
+
+  /* ---------- Reward ---------- */
+  #reward .card {
+    background: #ffffffdd;
+    border-radius: 36px;
+    padding: clamp(20px, 5vh, 46px) clamp(24px, 6vw, 60px);
+    text-align: center;
+    box-shadow: 0 16px 40px #00000030;
+    animation: pop 0.5s cubic-bezier(.2,1.6,.4,1);
+    max-width: 92vw;
+  }
+  #reward .bigstar {
+    font-size: clamp(90px, 26vw, 200px);
+    animation: spinstar 1.4s ease-in-out infinite;
+    filter: drop-shadow(0 8px 12px #ffb70055);
+  }
+  @keyframes spinstar {
+    0%,100% { transform: rotate(-12deg) scale(1); }
+    50% { transform: rotate(12deg) scale(1.12); }
+  }
+  #reward h2 {
+    font-size: clamp(30px, 8vw, 60px);
+    margin: 6px 0 4px;
+    background: linear-gradient(90deg, var(--pink), var(--purple), var(--blue));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  #reward p { font-size: clamp(18px, 4.6vw, 28px); font-weight: 700; opacity: 0.8; margin: 0 0 clamp(16px, 3vh, 28px); }
+  #reward .again {
+    border: none;
+    background: linear-gradient(150deg, #52e6b0, var(--green));
+    color: #fff;
+    font-family: inherit;
+    font-weight: 900;
+    font-size: clamp(22px, 5.5vw, 34px);
+    padding: 16px 40px;
+    border-radius: 999px;
+    cursor: pointer;
+    box-shadow: 0 8px 0 #00000030;
+    transition: transform 0.08s ease;
+  }
+  #reward .again:active { transform: translateY(5px); box-shadow: 0 3px 0 #00000030; }
+
+  /* Confetti */
+  .confetti {
+    position: fixed;
+    top: -20px;
+    width: 14px;
+    height: 20px;
+    border-radius: 3px;
+    z-index: 50;
+    pointer-events: none;
+    animation: fall linear forwards;
+  }
+  @keyframes fall {
+    to { transform: translateY(110vh) rotate(720deg); opacity: 0.9; }
+  }
+
+  /* Floating +n feedback */
+  .floatnum {
+    position: fixed;
+    font-size: clamp(30px, 8vw, 60px);
+    font-weight: 900;
+    color: var(--green);
+    text-shadow: 0 3px 0 #fff;
+    pointer-events: none;
+    z-index: 60;
+    animation: floatup 0.9s ease forwards;
+  }
+  @keyframes floatup {
+    0% { transform: translate(-50%, 0) scale(0.6); opacity: 0; }
+    30% { opacity: 1; transform: translate(-50%, -20px) scale(1.2); }
+    100% { transform: translate(-50%, -120px) scale(1); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- HOME -->
+  <section id="home" class="screen active">
+    <div class="topbar">
+      <button class="iconbtn" id="muteHome" title="Sound on/off">🔊</button>
+      <div class="star-shelf" id="starShelfHome"></div>
+      <div style="width:clamp(52px,11vw,72px)"></div>
+    </div>
+    <div class="mascot" id="homeMascot">🦊</div>
+    <h1 class="title">Elli's Counting Adventure</h1>
+    <div class="subtitle">Pick a number to count by!</div>
+    <div class="count-grid">
+      <button class="count-btn c2"  data-step="2"><span class="big">2</span><span class="lbl">Count by 2s</span></button>
+      <button class="count-btn c3"  data-step="3"><span class="big">3</span><span class="lbl">Count by 3s</span></button>
+      <button class="count-btn c5"  data-step="5"><span class="big">5</span><span class="lbl">Count by 5s</span></button>
+      <button class="count-btn c10" data-step="10"><span class="big">10</span><span class="lbl">Count by 10s</span></button>
+    </div>
+    <div class="maxrow">
+      <div class="lbl">How high?</div>
+      <div class="chip-row" id="maxChips">
+        <button class="chip" data-max="20">to 20</button>
+        <button class="chip selected" data-max="50">to 50</button>
+        <button class="chip" data-max="100">to 100</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PLAY -->
+  <section id="play" class="screen">
+    <div class="topbar">
+      <button class="iconbtn" id="backBtn" title="Home">🏠</button>
+      <div class="star-shelf" id="starShelfPlay"></div>
+      <button class="iconbtn" id="mutePlay" title="Sound on/off">🔊</button>
+    </div>
+    <div class="play-header" id="playHeader"></div>
+    <div class="total-badge" id="totalBadge">0</div>
+    <div class="stage" id="stage"></div>
+    <div class="prompt" id="prompt"></div>
+  </section>
+
+  <!-- REWARD -->
+  <section id="reward" class="screen">
+    <div class="card">
+      <div class="bigstar">⭐</div>
+      <h2 id="rewardTitle">You did it!</h2>
+      <p id="rewardMsg">You counted all the way up!</p>
+      <button class="again" id="againBtn">Play again ▶</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---------- State ----------
+  var state = {
+    step: 2,
+    max: 50,
+    current: 0,
+    mode: "grouped",   // "grouped" | "numline"
+    stars: 0,
+    muted: false,
+    targetCount: 0,    // how many multiples we need to reach
+    goal: 0            // last multiple we actually count to (step * targetCount)
+  };
+
+  try {
+    var saved = localStorage.getItem("elliStars");
+    if (saved) state.stars = parseInt(saved, 10) || 0;
+    var sm = localStorage.getItem("elliMuted");
+    if (sm === "1") state.muted = true;
+  } catch (e) {}
+
+  var OBJECTS = ["🍎","🍓","🐥","⭐","🐞","🌸","🍊","🐠","🎈","🍪","🦋","🌼"];
+  var MASCOTS = ["🦊","🐰","🐸","🐨","🐼","🐷","🐵","🦄"];
+  var HOPPERS = ["🐰","🐸","🦘","🐿️","🐇"];
+
+  // ---------- DOM ----------
+  function $(id) { return document.getElementById(id); }
+  var screens = { home: $("home"), play: $("play"), reward: $("reward") };
+
+  function show(name) {
+    Object.keys(screens).forEach(function (k) {
+      screens[k].classList.toggle("active", k === name);
+    });
+  }
+
+  // ---------- Audio (Web Audio API) ----------
+  var audioCtx = null;
+  function ensureAudio() {
+    if (!audioCtx) {
+      try {
+        var AC = window.AudioContext || window.webkitAudioContext;
+        if (AC) audioCtx = new AC();
+      } catch (e) { audioCtx = null; }
+    }
+    if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
+  }
+  function tone(freq, start, dur, type, vol) {
+    if (!audioCtx) return;
+    var osc = audioCtx.createOscillator();
+    var gain = audioCtx.createGain();
+    osc.type = type || "sine";
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime + start);
+    gain.gain.setValueAtTime(0.0001, audioCtx.currentTime + start);
+    gain.gain.exponentialRampToValueAtTime(vol || 0.25, audioCtx.currentTime + start + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + start + dur);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(audioCtx.currentTime + start);
+    osc.stop(audioCtx.currentTime + start + dur + 0.02);
+  }
+  function playCorrect(n) {
+    if (state.muted) return;
+    ensureAudio();
+    var base = 440 + Math.min(n, 20) * 18;
+    tone(base, 0, 0.14, "triangle", 0.28);
+    tone(base * 1.5, 0.08, 0.16, "sine", 0.2);
+  }
+  function playRetry() {
+    if (state.muted) return;
+    ensureAudio();
+    tone(300, 0, 0.16, "sine", 0.2);
+    tone(230, 0.12, 0.2, "sine", 0.18);
+  }
+  function playCelebrate() {
+    if (state.muted) return;
+    ensureAudio();
+    var notes = [523, 659, 784, 1047, 784, 1047, 1319];
+    notes.forEach(function (f, i) { tone(f, i * 0.12, 0.22, "triangle", 0.26); });
+  }
+  function playStar() {
+    if (state.muted) return;
+    ensureAudio();
+    tone(880, 0, 0.1, "sine", 0.22);
+    tone(1320, 0.08, 0.18, "sine", 0.2);
+  }
+
+  // ---------- Voice (Web Speech API) ----------
+  var speechSupported = ("speechSynthesis" in window) && (typeof window.SpeechSynthesisUtterance !== "undefined");
+  var chosenVoice = null;
+  function pickVoice() {
+    if (!speechSupported) return;
+    var voices = window.speechSynthesis.getVoices();
+    if (!voices || !voices.length) return;
+    var en = voices.filter(function (v) { return /^en(-|_|$)/i.test(v.lang); });
+    var pool = en.length ? en : voices;
+    // Prefer clear, friendly, higher-quality voices when available.
+    var preferred = ["Samantha", "Google US English", "Karen", "Moira", "Tessa", "Google UK English Female", "Microsoft Aria", "Microsoft Zira"];
+    for (var i = 0; i < preferred.length; i++) {
+      for (var j = 0; j < pool.length; j++) {
+        if (pool[j].name.indexOf(preferred[i]) !== -1) { chosenVoice = pool[j]; return; }
+      }
+    }
+    var female = pool.filter(function (v) { return /female|samantha|karen|moira|tessa|aria|zira|susan|fiona/i.test(v.name); });
+    chosenVoice = female.length ? female[0] : pool[0];
+  }
+  if (speechSupported) {
+    pickVoice();
+    // Voices often load asynchronously.
+    window.speechSynthesis.onvoiceschanged = pickVoice;
+  }
+  function speak(text, opts) {
+    if (state.muted || !speechSupported) return;
+    opts = opts || {};
+    try {
+      // Re-pick voice if browser loaded voices late.
+      if (!chosenVoice) pickVoice();
+      // iOS/Safari can get stuck in paused state after backgrounding.
+      if (window.speechSynthesis.paused) window.speechSynthesis.resume();
+      if (window.speechSynthesis.speaking || window.speechSynthesis.pending) {
+        window.speechSynthesis.cancel();
+      }
+      var u = new SpeechSynthesisUtterance(String(text));
+      if (chosenVoice) u.voice = chosenVoice;
+      u.rate = opts.rate || 0.9;   // slower and clearer for a toddler
+      u.pitch = opts.pitch || 1.25; // friendly, upbeat
+      u.volume = 1;
+      window.speechSynthesis.speak(u);
+    } catch (e) {}
+  }
+  function speakNumber(n) { speak(n, { rate: 0.85, pitch: 1.3 }); }
+
+  function updateMuteButtons() {
+    var label = state.muted ? "🔇" : "🔊";
+    $("muteHome").textContent = label;
+    $("mutePlay").textContent = label;
+  }
+  function toggleMute() {
+    state.muted = !state.muted;
+    try { localStorage.setItem("elliMuted", state.muted ? "1" : "0"); } catch (e) {}
+    updateMuteButtons();
+    if (state.muted) {
+      if (speechSupported) { try { window.speechSynthesis.cancel(); } catch (e) {} }
+    } else {
+      ensureAudio();
+      playStar();
+      speak("Let's count!");
+    }
+  }
+
+  // ---------- Stars ----------
+  function renderStars() {
+    var shown = Math.min(state.stars, 8);
+    var str = "";
+    for (var i = 0; i < shown; i++) str += "⭐";
+    var html = str + (state.stars > 0 ? '<span class="count">' + state.stars + "</span>" : "");
+    $("starShelfHome").innerHTML = html;
+    $("starShelfPlay").innerHTML = html;
+  }
+  function addStar() {
+    state.stars++;
+    try { localStorage.setItem("elliStars", String(state.stars)); } catch (e) {}
+    renderStars();
+  }
+
+  // ---------- Effects ----------
+  var CONFETTI_COLORS = ["#ff5fa2","#9b5de5","#00bbf9","#00d68f","#ffd60a","#ff8c42","#ff595e"];
+  function confettiBurst(count) {
+    count = count || 60;
+    for (var i = 0; i < count; i++) {
+      (function () {
+        var c = document.createElement("div");
+        c.className = "confetti";
+        c.style.left = Math.random() * 100 + "vw";
+        c.style.background = CONFETTI_COLORS[i % CONFETTI_COLORS.length];
+        var dur = 2 + Math.random() * 2;
+        c.style.animationDuration = dur + "s";
+        c.style.transform = "rotate(" + (Math.random() * 360) + "deg)";
+        if (Math.random() > 0.5) c.style.borderRadius = "999px";
+        document.body.appendChild(c);
+        setTimeout(function () { c.remove(); }, dur * 1000 + 200);
+      })();
+    }
+  }
+  function floatNum(text, x, y) {
+    var el = document.createElement("div");
+    el.className = "floatnum";
+    el.textContent = text;
+    el.style.left = x + "px";
+    el.style.top = y + "px";
+    document.body.appendChild(el);
+    setTimeout(function () { el.remove(); }, 900);
+  }
+
+  function popTotal() {
+    var b = $("totalBadge");
+    b.textContent = state.current;
+    b.classList.remove("pop");
+    void b.offsetWidth;
+    b.classList.add("pop");
+  }
+
+  // ---------- Game setup ----------
+  function startGame(step) {
+    state.step = step;
+    state.current = 0;
+    state.targetCount = Math.max(1, Math.floor(state.max / step));
+    state.goal = state.targetCount * step;
+    // Alternate between the two activities to keep it fresh
+    state.mode = (Math.random() < 0.5) ? "grouped" : "numline";
+    show("play");
+    if (state.mode === "grouped") buildGrouped();
+    else buildNumberLine();
+    renderStars();
+  }
+
+  function stepColorVar() {
+    return ({2:"var(--pink)",3:"var(--purple)",5:"var(--blue)",10:"var(--green)"})[state.step] || "var(--purple)";
+  }
+
+  // ---------- Activity 1: Grouped counting ----------
+  function buildGrouped() {
+    state.current = 0;
+    $("totalBadge").textContent = "0";
+    $("playHeader").innerHTML = 'Tap each group to count by <b>' + state.step + "</b>!";
+    $("prompt").innerHTML = "Tap the wobbling group 👉";
+    var stage = $("stage");
+    stage.innerHTML = "";
+    var wrap = document.createElement("div");
+    wrap.className = "groups";
+    var obj = OBJECTS[Math.floor(Math.random() * OBJECTS.length)];
+
+    for (var g = 0; g < state.targetCount; g++) {
+      var group = document.createElement("div");
+      group.className = "group";
+      group.dataset.index = g;
+      // arrange items in rows of up to 5
+      var perRow = state.step > 5 ? 5 : state.step;
+      var remaining = state.step;
+      while (remaining > 0) {
+        var row = document.createElement("div");
+        row.className = "row";
+        var n = Math.min(perRow, remaining);
+        for (var k = 0; k < n; k++) {
+          var it = document.createElement("span");
+          it.className = "item";
+          it.textContent = obj;
+          row.appendChild(it);
+        }
+        group.appendChild(row);
+        remaining -= n;
+      }
+      group.addEventListener("click", onGroupTap);
+      wrap.appendChild(group);
+    }
+    stage.appendChild(wrap);
+    highlightNextGroup();
+  }
+
+  function highlightNextGroup() {
+    var groups = document.querySelectorAll(".group");
+    for (var i = 0; i < groups.length; i++) groups[i].classList.remove("hint");
+    var next = document.querySelector('.group:not(.done)');
+    if (next) next.classList.add("hint");
+  }
+
+  function onGroupTap(e) {
+    unlockOnce();
+    var group = e.currentTarget;
+    var idx = parseInt(group.dataset.index, 10);
+    var tappedValue = (idx + 1) * state.step;
+    speakNumber(tappedValue);
+    if (group.classList.contains("done")) return;
+    var expected = state.current / state.step; // index of next expected group
+    if (idx !== expected) {
+      // gentle wrong feedback
+      group.classList.remove("hint");
+      group.classList.add("group");
+      group.animate([
+        { transform: "translateX(-6px)" },
+        { transform: "translateX(6px)" },
+        { transform: "translateX(0)" }
+      ], { duration: 300 });
+      playRetry();
+      return;
+    }
+    group.classList.remove("hint");
+    group.classList.add("done");
+    state.current += state.step;
+    popTotal();
+    playCorrect(state.current);
+    speakNumber(state.current);
+    var r = group.getBoundingClientRect();
+    floatNum("+" + state.step, r.left + r.width / 2, r.top + r.height / 2);
+    highlightNextGroup();
+    if (state.current >= state.goal) setTimeout(win, 550);
+  }
+
+  // ---------- Activity 2: Number line hop ----------
+  function buildNumberLine() {
+    state.current = 0;
+    $("totalBadge").textContent = "0";
+    $("playHeader").innerHTML = 'Help the bunny hop by <b>' + state.step + "</b>!";
+    $("prompt").innerHTML = "Tap the <b>glowing</b> number to hop!";
+    var stage = $("stage");
+    stage.innerHTML = "";
+
+    var wrap = document.createElement("div");
+    wrap.className = "numline-wrap";
+
+    var track = document.createElement("div");
+    track.className = "track";
+
+    var inner = document.createElement("div");
+    inner.className = "track-inner";
+
+    var line = document.createElement("div");
+    line.className = "track-line";
+    inner.appendChild(line);
+
+    var stops = document.createElement("div");
+    stops.className = "stops";
+
+    var totalStops = state.targetCount + 1; // include 0
+    for (var i = 0; i < totalStops; i++) {
+      var stop = document.createElement("div");
+      stop.className = "stop";
+      stop.dataset.value = i * state.step;
+      stop.dataset.index = i;
+      var dot = document.createElement("div");
+      dot.className = "dot";
+      dot.textContent = i * state.step;
+      stop.appendChild(dot);
+      stop.addEventListener("click", onStopTap);
+      stops.appendChild(stop);
+    }
+    inner.appendChild(stops);
+
+    var hopper = document.createElement("div");
+    hopper.className = "hopper";
+    hopper.id = "hopper";
+    hopper.textContent = HOPPERS[Math.floor(Math.random() * HOPPERS.length)];
+    inner.appendChild(hopper);
+
+    track.appendChild(inner);
+    wrap.appendChild(track);
+    stage.appendChild(wrap);
+
+    // mark 0 reached
+    stops.children[0].classList.add("reached");
+    updateNumberLine();
+  }
+
+  function positionHopper() {
+    var stops = document.querySelectorAll("#play .stop");
+    var idx = state.current / state.step;
+    if (idx >= stops.length) idx = stops.length - 1;
+    var stop = stops[idx];
+    var hopper = $("hopper");
+    if (!stop || !hopper) return;
+    var inner = stop.parentElement.parentElement; // stop -> stops -> inner
+    var scroller = inner.parentElement;            // inner -> track (scroll viewport)
+    var stopRect = stop.getBoundingClientRect();
+    var innerRect = inner.getBoundingClientRect();
+    // Position within the (possibly wider) scrollable content.
+    var centerX = stopRect.left - innerRect.left + stopRect.width / 2;
+    hopper.style.left = centerX + "px";
+    // Auto-scroll so the current/next stop stays comfortably in view.
+    if (scroller && scroller.scrollWidth > scroller.clientWidth) {
+      var target = centerX - scroller.clientWidth / 2;
+      var maxScroll = scroller.scrollWidth - scroller.clientWidth;
+      if (target < 0) target = 0;
+      if (target > maxScroll) target = maxScroll;
+      try { scroller.scrollTo({ left: target, behavior: "smooth" }); }
+      catch (e) { scroller.scrollLeft = target; }
+    }
+  }
+
+  function updateNumberLine() {
+    var stops = document.querySelectorAll("#play .stop");
+    var currentIdx = state.current / state.step;
+    for (var i = 0; i < stops.length; i++) {
+      stops[i].classList.remove("current");
+      if (i <= currentIdx) stops[i].classList.add("reached");
+      else stops[i].classList.remove("reached");
+    }
+    var nextIdx = currentIdx + 1;
+    if (nextIdx < stops.length) stops[nextIdx].classList.add("current");
+    positionHopper();
+  }
+
+  function onStopTap(e) {
+    unlockOnce();
+    var stop = e.currentTarget;
+    var idx = parseInt(stop.dataset.index, 10);
+    var tappedValue = idx * state.step;
+    speakNumber(tappedValue);
+    var expected = state.current / state.step + 1;
+    if (idx !== expected) {
+      stop.classList.remove("wrong");
+      void stop.offsetWidth;
+      stop.classList.add("wrong");
+      playRetry();
+      setTimeout(function () { stop.classList.remove("wrong"); }, 450);
+      return;
+    }
+    state.current += state.step;
+    popTotal();
+    playCorrect(state.current);
+    speakNumber(state.current);
+    var hopper = $("hopper");
+    if (hopper) { hopper.classList.remove("hop"); void hopper.offsetWidth; hopper.classList.add("hop"); }
+    updateNumberLine();
+    var r = stop.getBoundingClientRect();
+    floatNum(String(state.current), r.left + r.width / 2, r.top);
+    if (state.current >= state.goal) setTimeout(win, 650);
+  }
+
+  // ---------- Win ----------
+  function win() {
+    addStar();
+    playCelebrate();
+    confettiBurst(80);
+    $("homeMascot").textContent = MASCOTS[Math.floor(Math.random() * MASCOTS.length)];
+    var msgs = [
+      "You counted by " + state.step + "s all the way to " + state.goal + "!",
+      "Amazing counting to " + state.goal + "!",
+      "Super job counting by " + state.step + "s!"
+    ];
+    $("rewardMsg").textContent = msgs[Math.floor(Math.random() * msgs.length)];
+    show("reward");
+    setTimeout(function () { speak("Yay! You did it! You counted to " + state.goal + "!", { rate: 0.95, pitch: 1.35 }); }, 500);
+    setTimeout(function () { confettiBurst(40); }, 700);
+  }
+
+  // ---------- Wire up ----------
+  var maxChips = document.querySelectorAll("#maxChips .chip");
+  maxChips.forEach(function (chip) {
+    chip.addEventListener("click", function () {
+      maxChips.forEach(function (c) { c.classList.remove("selected"); });
+      chip.classList.add("selected");
+      state.max = parseInt(chip.dataset.max, 10);
+    });
+  });
+
+  document.querySelectorAll(".count-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      ensureAudio();
+      playStar();
+      var step = parseInt(btn.dataset.step, 10);
+      speak("Let's count by " + step + "s!", { rate: 0.95, pitch: 1.3 });
+      startGame(step);
+    });
+  });
+
+  $("backBtn").addEventListener("click", function () { show("home"); renderStars(); });
+  $("againBtn").addEventListener("click", function () { startGame(state.step); });
+  $("muteHome").addEventListener("click", toggleMute);
+  $("mutePlay").addEventListener("click", toggleMute);
+
+  // reposition hopper on resize/orientation change
+  window.addEventListener("resize", function () {
+    if (screens.play.classList.contains("active") && state.mode === "numline") positionHopper();
+  });
+
+  // Unlock audio + speech on first touch anywhere (iOS/Safari require a user gesture).
+  function unlockOnce() {
+    ensureAudio();
+    if (speechSupported && !state.muted) {
+      try {
+        var warm = new SpeechSynthesisUtterance(" ");
+        warm.volume = 0;
+        window.speechSynthesis.speak(warm);
+      } catch (e) {}
+    }
+  }
+  document.body.addEventListener("touchstart", unlockOnce, { once: true });
+  document.body.addEventListener("pointerdown", unlockOnce, { once: true });
+  document.body.addEventListener("mousedown", unlockOnce, { once: true });
+
+  updateMuteButtons();
+  renderStars();
+})();
+</script>
+</body>
+</html>
